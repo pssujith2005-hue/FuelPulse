@@ -1,0 +1,313 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<style>
+    /* --- SASSY BLACK THEME VARIABLES --- */
+    :root {
+        --bg-card: #0a0a0a;
+        --border-glass: rgba(255, 255, 255, 0.1);
+        --input-bg: rgba(255, 255, 255, 0.05);
+        --primary-gradient: linear-gradient(135deg, #2563eb 0%, #06b6d4 100%);
+        --primary-glow: 0 0 20px rgba(37, 99, 235, 0.3);
+        --text-muted: #9ca3af;
+        --error-color: #ef4444;
+    }
+
+    /* CARD STYLING */
+    .sassy-card {
+        background-color: var(--bg-card);
+        border: 1px solid var(--border-glass);
+        border-radius: 20px;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    }
+
+    /* INPUT STYLING */
+    .form-control, .form-select, select, input {
+        background-color: var(--input-bg) !important;
+        border: 1px solid var(--border-glass) !important;
+        color: white !important;
+        padding: 12px 15px !important;
+        height: 50px !important;
+        border-radius: 12px !important;
+        font-size: 0.95rem !important;
+        width: 100%;
+        transition: all 0.3s ease;
+    }
+
+    /* Dropdown Options Fix */
+    option {
+        background-color: #000000 !important;
+        color: white !important;
+        padding: 10px;
+    }
+
+    .form-control:focus, .form-select:focus {
+        background-color: rgba(255,255,255,0.1) !important;
+        border-color: #06b6d4 !important;
+        box-shadow: 0 0 15px rgba(6, 182, 212, 0.2) !important;
+        transform: translateY(-2px);
+        outline: none;
+        color: white !important;
+    }
+
+    /* LABELS */
+    .section-title {
+        color: #60a5fa; 
+        font-weight: 700;
+        letter-spacing: 1px;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        margin-bottom: 1.5rem;
+        display: flex; align-items: center;
+    }
+    .section-title::after {
+        content: ''; flex: 1; height: 1px;
+        background: linear-gradient(to right, rgba(37,99,235,0.5), transparent);
+        margin-left: 15px;
+    }
+    label { color: var(--text-muted); font-size: 0.85rem; font-weight: 500; margin-bottom: 8px; display: block; }
+
+    /* ERROR TEXT STYLING */
+    .error-msg { 
+        color: var(--error-color); 
+        font-size: 0.8rem; 
+        margin-top: 6px; 
+        display: flex; 
+        align-items: center; 
+        font-weight: 500;
+    }
+    .error-msg i { margin-right: 5px; }
+
+    /* BUTTONS */
+    .btn-sassy {
+        background: var(--primary-gradient); border: none; color: white;
+        padding: 14px; font-weight: 700; border-radius: 12px;
+        transition: all 0.3s; box-shadow: var(--primary-glow);
+    }
+    .btn-sassy:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(6, 182, 212, 0.4); color: white; }
+    
+    .btn-cancel {
+        background: transparent; border: 1px solid var(--border-glass); color: #ccc;
+        padding: 14px; border-radius: 12px; font-weight: 600; transition: 0.3s;
+    }
+    .btn-cancel:hover { background: rgba(255,255,255,0.05); color: white; border-color: white; }
+</style>
+
+<div class="row justify-content-center">
+    <div class="col-md-9 col-lg-8">
+        
+        {% if form.non_field_errors %}
+        <div class="alert alert-danger border-0 bg-danger bg-opacity-10 text-danger mb-4 rounded-3 p-3">
+            <div class="d-flex align-items-center mb-2">
+                <i class="fas fa-exclamation-circle me-2 fs-5"></i> <strong>There were errors with your submission:</strong>
+            </div>
+            <ul class="mb-0 ps-3 small">
+                {% for error in form.non_field_errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% elif form.errors %}
+        <div class="alert alert-danger border-0 bg-danger bg-opacity-10 text-danger mb-4 rounded-3 p-3">
+            <i class="fas fa-exclamation-triangle me-2"></i> Please correct the highlighted errors below.
+        </div>
+        {% endif %}
+
+        <div class="sassy-card p-5">
+            <div class="d-flex align-items-center mb-5">
+                <div class="rounded-circle d-flex align-items-center justify-content-center me-4" 
+                     style="width: 60px; height: 60px; background: rgba(37, 99, 235, 0.1); border: 1px solid rgba(37, 99, 235, 0.2);">
+                    <i class="fas fa-car-alt text-info fs-3"></i>
+                </div>
+                <div>
+                    <h3 class="text-white fw-bold mb-1">Add New Vehicle</h3>
+                    <p class="text-muted mb-0 small">Enter details to start tracking maintenance and fuel.</p>
+                </div>
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="section-title"><i class="fas fa-sitemap me-2"></i> Vehicle Classification</div>
+                <div class="row g-4 mb-5">
+                    <div class="col-md-4">
+                        <label>Category</label>
+                        {{ form.category }}
+                        {% if form.category.errors %}<div class="error-msg"><i class="fas fa-times-circle"></i>{{ form.category.errors.0 }}</div>{% endif %}
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <label>Brand (Make)</label>
+                        <select name="make" id="id_make" class="form-select" required>
+                            <option value="">-- Select Category First --</option>
+                        </select>
+                        {% if form.make.errors %}
+                            <div class="error-msg"><i class="fas fa-times-circle"></i>{{ form.make.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-4">
+                        <label>Model Name</label>
+                        <select name="model_name" id="id_model_name" class="form-select" required>
+                             <option value="">-- Select Brand First --</option>
+                        </select>
+                        {% if form.model_name.errors %}
+                            <div class="error-msg"><i class="fas fa-times-circle"></i>{{ form.model_name.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="section-title"><i class="fas fa-info-circle me-2"></i> Specifications</div>
+                <div class="row g-4 mb-5">
+                    <div class="col-md-6">
+                        <label>License Plate</label>
+                        {{ form.license_plate }}
+                        {% if form.license_plate.errors %}<div class="error-msg"><i class="fas fa-times-circle"></i>{{ form.license_plate.errors.0 }}</div>{% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label>Fuel Type</label>
+                        {{ form.fuel_type }}
+                        {% if form.fuel_type.errors %}<div class="error-msg"><i class="fas fa-times-circle"></i>{{ form.fuel_type.errors.0 }}</div>{% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label>Ownership Status</label>
+                        <select name="ownership_type" class="form-select">
+                            <option value="1st Owner">1st Owner (Brand New)</option>
+                            <option value="2nd Owner">2nd Owner</option>
+                            <option value="3rd Owner">3rd Owner</option>
+                            <option value="4th Owner">4th Owner</option>
+                            <option value="5th Owner">5th Owner+</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label>Current Odometer (km)</label>
+                        {{ form.current_odometer }}
+                        {% if form.current_odometer.errors %}<div class="error-msg"><i class="fas fa-times-circle"></i>{{ form.current_odometer.errors.0 }}</div>{% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label>Year of Registration</label>
+                        <input type="number" name="purchase_year" class="form-control" placeholder="YYYY (e.g. 2022)" min="1990" max="2099" required>
+                        {% if form.purchase_year.errors %}<div class="error-msg"><i class="fas fa-times-circle"></i>{{ form.purchase_year.errors.0 }}</div>{% endif %}
+                    </div>
+                </div>
+
+                <div class="section-title" style="color: #fbbf24;"><i class="fas fa-calendar-check me-2"></i> Document Expiry</div>
+                <div class="row g-4 mb-5">
+                    <div class="col-md-4">
+                        <label>Insurance Expiry</label>
+                        {{ form.insurance_expiry }}
+                        {% if form.insurance_expiry.errors %}<div class="error-msg"><i class="fas fa-times-circle"></i>{{ form.insurance_expiry.errors.0 }}</div>{% endif %}
+                    </div>
+                    <div class="col-md-4">
+                        <label>Pollution (PUC) Expiry</label>
+                        {{ form.pollution_expiry }}
+                        {% if form.pollution_expiry.errors %}<div class="error-msg"><i class="fas fa-times-circle"></i>{{ form.pollution_expiry.errors.0 }}</div>{% endif %}
+                    </div>
+                    <div class="col-md-4">
+                        <label>Fitness Cert Expiry</label>
+                        {{ form.fitness_expiry }}
+                        {% if form.fitness_expiry.errors %}<div class="error-msg"><i class="fas fa-times-circle"></i>{{ form.fitness_expiry.errors.0 }}</div>{% endif %}
+                    </div>
+                </div>
+
+                <div class="d-grid gap-3 d-md-flex mt-4">
+                    <button type="submit" class="btn btn-sassy flex-grow-1">
+                        <i class="fas fa-check-circle me-2"></i> Save Vehicle
+                    </button>
+                    <a href="{% url 'dashboard' %}" class="btn btn-cancel px-5">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // --- FORCE STYLING ---
+    var allInputs = document.querySelectorAll('input, select, textarea');
+    allInputs.forEach(function(el) {
+        if (el.tagName === 'SELECT') { el.classList.add('form-select'); } 
+        else { el.classList.add('form-control'); }
+    });
+
+    // --- VEHICLE DATA LIBRARY (Dropdowns) ---
+    const vehicleData = {
+        "Two Wheeler": {
+            "Hero": ["Splendor Plus", "HF Deluxe", "Passion Pro", "Glamour", "Xpulse 200", "Pleasure Plus"],
+            "Honda": ["Activa 6G", "Shine", "SP 125", "Unicorn", "Dio", "Hornet 2.0"],
+            "TVS": ["Jupiter", "Apache RTR 160", "XL100", "Ntorq 125", "Raider", "Sport"],
+            "Bajaj": ["Pulsar 150", "Platina 100", "CT 100", "Dominar 400", "Avenger"],
+            "Royal Enfield": ["Classic 350", "Bullet 350", "Meteor 350", "Himalayan", "Hunter 350"],
+            "Suzuki": ["Access 125", "Burgman Street", "Gixxer"],
+            "Yamaha": ["MT-15", "R15 V4", "Fascino 125", "RayZR"],
+            "Ola Electric": ["S1 Pro", "S1 Air", "S1 X"],
+            "Ather": ["450X", "450S"]
+        },
+        "Four Wheeler": {
+            "Maruti Suzuki": ["Alto K10", "Swift", "Baleno", "Dzire", "Brezza", "Ertiga", "Grand Vitara", "Fronx", "Jimny"],
+            "Hyundai": ["Creta", "Venue", "i20", "Grand i10 Nios", "Verna", "Exter", "Alcazar"],
+            "Tata Motors": ["Nexon", "Punch", "Tiago", "Altroz", "Harrier", "Safari", "Tigor"],
+            "Mahindra": ["Thar", "Scorpio N", "XUV700", "Bolero", "XUV300"],
+            "Kia": ["Seltos", "Sonet", "Carens"],
+            "Toyota": ["Innova Crysta", "Fortuner", "Glanza", "Hyryder"],
+            "Honda": ["City", "Amaze", "Elevate"],
+            "Skoda": ["Slavia", "Kushaq"],
+            "Volkswagen": ["Virtus", "Taigun"]
+        },
+        "Heavy Vehicle": {
+            "Ashok Leyland": ["Dost+", "Bada Dost", "Ecomet", "Boss"],
+            "Tata Motors Truck": ["Ace Gold", "Intra", "Yodha", "Prima"],
+            "Eicher": ["Pro 2000", "Pro 3000"],
+            "Mahindra Truck": ["Bolero Pickup", "Furio", "Blazo"]
+        }
+    };
+
+    // --- GET ELEMENTS ---
+    const categorySelect = document.getElementById('id_category');
+    const brandSelect = document.getElementById('id_make');
+    const modelSelect = document.getElementById('id_model_name');
+
+    // --- UPDATE BRANDS ---
+    function updateBrands() {
+        const selectedCategory = categorySelect.value;
+        brandSelect.innerHTML = '<option value="">-- Select Brand --</option>';
+        modelSelect.innerHTML = '<option value="">-- Select Model --</option>';
+
+        if (selectedCategory && vehicleData[selectedCategory]) {
+            const brands = Object.keys(vehicleData[selectedCategory]);
+            brands.forEach(brand => {
+                const option = document.createElement('option');
+                option.value = brand;
+                option.textContent = brand;
+                brandSelect.appendChild(option);
+            });
+        }
+    }
+
+    // --- UPDATE MODELS ---
+    function updateModels() {
+        const selectedCategory = categorySelect.value;
+        const selectedBrand = brandSelect.value;
+        modelSelect.innerHTML = '<option value="">-- Select Model --</option>';
+
+        if (selectedCategory && selectedBrand && vehicleData[selectedCategory][selectedBrand]) {
+            const models = vehicleData[selectedCategory][selectedBrand];
+            models.forEach(model => {
+                const option = document.createElement('option');
+                option.value = model;
+                option.textContent = model;
+                modelSelect.appendChild(option);
+            });
+        }
+    }
+
+    // --- LISTENERS ---
+    if (categorySelect && brandSelect && modelSelect) {
+        categorySelect.addEventListener('change', updateBrands);
+        brandSelect.addEventListener('change', updateModels);
+    }
+});
+</script>
+{% endblock %}

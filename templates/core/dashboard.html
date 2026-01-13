@@ -1,0 +1,427 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-end mb-5">
+    <div class="page-header">
+        <h2 class="text-white">My Garage</h2>
+        <p class="text-muted">Monitor your vehicles, trips, and fuel consumption.</p>
+    </div>
+    
+    <div class="d-flex gap-3 align-items-center">
+        
+        <div class="dropdown">
+            <a href="#" class="btn btn-dark border border-secondary rounded-circle d-flex align-items-center justify-content-center position-relative" 
+   id="dashboardNotifyDropdown" 
+   data-bs-toggle="dropdown" 
+   aria-expanded="false" 
+   style="width: 45px; height: 45px;">
+    
+    <i class="fas fa-bell text-white"></i>
+    
+    {% if notification_count > 0 %}
+    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem;">
+        {{ notification_count }}
+    </span>
+    {% endif %}
+</a>
+
+            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark shadow-lg border-secondary" aria-labelledby="dashboardNotifyDropdown" style="width: 320px;">
+                <li><h6 class="dropdown-header text-uppercase text-muted small fw-bold">Alerts</h6></li>
+                <li><hr class="dropdown-divider border-secondary"></li>
+
+                {% if notifications %}
+                    {% for n in notifications %}
+                    <li>
+                        <a class="dropdown-item d-flex align-items-start gap-3 py-2" href="#">
+                            <div class="mt-1">
+                                {% if n.type == 'danger' %}
+                                    <i class="fas fa-exclamation-circle text-danger"></i>
+                                {% elif n.type == 'warning' %}
+                                    <i class="fas fa-clock text-warning"></i>
+                                {% else %}
+                                    <i class="fas fa-info-circle text-info"></i>
+                                {% endif %}
+                            </div>
+                            <div style="white-space: normal; line-height: 1.2;">
+                                <small class="d-block text-white">{{ n.msg }}</small>
+                            </div>
+                        </a>
+                    </li>
+                    {% endfor %}
+                {% else %}
+                    <li><a class="dropdown-item text-muted small text-center py-3" href="#">No new alerts</a></li>
+                {% endif %}
+            </ul>
+        </div>
+
+        
+        <a href="{% url 'add_vehicle' %}" class="btn btn-primary d-flex align-items-center gap-2" style="height: 45px;">
+            <i class="fas fa-plus"></i> Add Vehicle
+        </a>
+        
+        <a href="{% url 'profile' %}" class="btn btn-dark border border-secondary rounded-circle d-flex align-items-center justify-content-center ms-2 text-decoration-none" style="width: 45px; height: 45px; background-color: #0f0f0f;">
+            <span class="fw-bold text-primary">{{ user.username|slice:":1"|upper }}</span>
+        </a>
+    </div>
+</div>
+
+<div class="row g-4 mb-5">
+    <div class="col-md-4">
+        <div class="stats-card h-100">
+            <div class="stats-label">
+                <div class="..."> <h3>Active vehicles 🚗</h3>
+                    <h1 class="text-3xl font-bold">{{ vehicle_count }}</h1>
+                    
+                    <p class="text-gray-500">
+                        {% if active_vehicles_count == 0 %}
+                            Add your first vehicle to start tracking.
+                        {% else %}
+                            Vehicles currently in your garage.
+                        {% endif %}
+                    </p>
+                </div>
+                <i class="fas fa-car opacity-50"></i>
+            </div>
+            
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stats-card h-100">
+            <div class="stats-label">
+                <div class="...">
+                    <h3>This month fuel.......       ⛽</h3>
+                    <h1 class="text-3xl font-bold">{{ total_fuel }} L</h1>
+                    
+                    <p class="text-gray-500">
+                        {% if total_fuel == 0 %}
+                            No fuel logs recorded yet.
+                        {% else %}
+                            Consumed this month.
+                        {% endif %}
+                    </p>
+                </div>
+                <i class="fas fa-gas-pump opacity-50"></i>
+            </div>
+            
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stats-card h-100">
+            <div class="stats-label">
+                <div class="...">
+    <h3>Distance logged 🛣️</h3>
+    <h1 class="text-3xl font-bold">{{ total_distance }} km</h1>
+    
+    <p class="text-gray-500">
+        {% if total_distance == 0 %}
+            Start a trip to see insights here.
+        {% else %}
+            Total distance driven.
+        {% endif %}
+    </p>
+</div>
+
+                <i class="fas fa-route opacity-50"></i>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    
+    <div class="col-lg-8">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="section-title mb-0"><i class="fas fa-th-large me-2 text-primary"></i> Garage overview</div>
+            
+            </div>
+
+        <div class="row g-4">
+            {% if vehicles %}
+                {% for v in vehicles %}
+                <div class="col-md-6">
+                     <div class="stats-card h-100 p-0 overflow-hidden">
+                        
+                        <div style="height: 120px; background: linear-gradient(to bottom, transparent, #0f0f0f), url('{{ v.image_url|default:'https://images.unsplash.com/photo-1533473359331-0135ef1bcfb0?auto=format&fit=crop&w=500&q=60' }}'); background-size: cover; background-position: center;"></div>
+                        
+                        <div class="p-4">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div>
+                                    <h5 class="fw-bold text-white mb-1">{{ v.make }} {{ v.model_name }}</h5>
+                                    <small class="text-muted">{{ v.license_plate }}</small>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-20">{{ v.get_ownership_type_display }}</span>
+                                    
+                                    <a href="{% url 'remove_vehicle' v.id %}" 
+                                       class="btn btn-danger btn-sm" 
+                                       onclick="return confirm('Are you sure you want to delete this vehicle? All history will be lost.');">
+                                       <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="stats-value fs-4 mb-3">{{ v.current_odometer }} <span class="fs-6 text-muted fw-normal">km</span></div>
+                            
+                            <div class="d-grid gap-2">
+                                <a href="{% url 'log_fuel' v.id %}" class="btn btn-outline-success btn-sm">
+                                    <i class="fas fa-gas-pump me-1"></i> Log Fuel
+                                </a>
+                                <a href="{% url 'vehicle_stats' v.id %}" class="btn btn-outline-info btn-sm">
+                                    <i class="fas fa-chart-line me-1"></i> View Stats
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="col-md-6">
+                    <div class="promo-card">
+                        <div class="promo-img-top" style="height: 140px; background-image: url('https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&q=80&w=500'); background-size: cover; background-position: center;"></div>
+                        <div class="promo-body">
+                            <h5 class="promo-title">Add your first vehicle</h5>
+                            <p class="promo-text">Register a car, bike, or truck to unlock fuel and trip analytics.</p>
+                            <a href="{% url 'add_vehicle' %}" class="btn btn-outline-secondary w-100">Add vehicle</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="promo-card h-100">
+                        <div class="promo-img-top" style="background-image: url('https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&q=80&w=500'); height: 100%; background-size: cover; background-position: center; min-height: 200px;">
+                           <div class="d-flex align-items-end h-100 p-3" style="background: linear-gradient(to top, #0f0f0f, transparent);">
+                               <span class="badge bg-dark border border-secondary text-light">Sample fleet view</span>
+                           </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="col-12 mt-4">
+                <div class="stats-card p-4 d-flex justify-content-between align-items-center" style="background: linear-gradient(45deg, #1e1e24, #0f0f0f); border: 1px solid #333;">
+                    <div>
+                        <h5 class="fw-bold text-white mb-1">Planning to buy a new car?</h5>
+                        <p class="text-muted small mb-0">Use our recommendation engine to find vehicles within your budget.</p>
+                    </div>
+                    <a href="{% url 'recommend_car' %}" class="btn btn-primary fw-bold">
+                        Try Now <i class="fas fa-arrow-right ms-2"></i>
+                    </a>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="stats-card h-100">
+            <h5 class="fw-bold mb-3 text-white">Quick Actions</h5>
+            
+            <div class="d-grid gap-3 mb-5">
+
+                    <a href="{% url 'log_trip' %}" class="btn btn-primary text-start px-3 text-white text-decoration-none">
+                        <i class="fas fa-play-circle me-2"></i> Start Quick Trip
+                    </a>
+                    <a href="{% url 'trip_calculator' %}" class="btn btn-outline-secondary text-start px-3 text-light text-decoration-none">
+                        <i class="fas fa-calculator me-2 text-muted"></i> Estimate Cost
+                    </a>
+                    <button type="button" class="btn btn-outline-secondary text-start px-3 text-light" data-bs-toggle="modal" data-bs-target="#valuationModal">
+                        <i class="fas fa-sack-dollar me-2 text-success"></i> Estimate Vehicle Value
+                    </button>
+                <a href="{% url 'recommend_car' %}" class="btn btn-outline-secondary text-start px-3 text-light">
+                    <i class="fas fa-car-side me-2 text-warning"></i> Find New Car
+                </a>
+            </div>
+          
+
+            <h6 class="text-muted small text-uppercase fw-bold mb-4">Recent activity</h6>
+            
+            <div class="activity-list">
+                <div class="d-flex gap-3 mb-4">
+                    <div class="text-center" style="width: 20px;">
+                        <div class="rounded-circle bg-secondary bg-opacity-25 d-flex align-items-center justify-content-center" style="width: 24px; height: 24px;">
+                            <i class="fas fa-road text-muted" style="font-size: 10px;"></i>
+                        </div>
+                        <div class="h-100 border-start border-secondary border-opacity-25 mx-auto my-1"></div>
+                    </div>
+                    <div>
+                        <div class="text-white small fw-bold">No trips logged</div>
+                        <div class="text-muted small" style="font-size: 0.8rem;">Your recent trips will appear here.</div>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-3">
+                    <div class="text-center" style="width: 20px;">
+                        <div class="rounded-circle bg-secondary bg-opacity-25 d-flex align-items-center justify-content-center" style="width: 24px; height: 24px;">
+                            <i class="fas fa-wrench text-muted" style="font-size: 10px;"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="text-white small fw-bold">Maintenance</div>
+                        <div class="text-muted small" style="font-size: 0.8rem;">No service history available.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="valuationModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-black border border-secondary text-white">
+            
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title fw-bold">
+                    <i class="fas fa-chart-line text-success me-2"></i> Estimate Vehicle Value
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+
+            <form method="post" action="{% url 'calculate_value' %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <p class="text-muted small mb-4">
+                        Accurate valuation based on age, condition, and maintenance history.
+                    </p>
+
+                    <div class="mb-3">
+                        <label class="form-label text-secondary small">Select Vehicle</label>
+                        <select name="vehicle_id" class="form-select bg-dark text-white border-secondary" required>
+                            {% for car in vehicles %}
+                                <option value="{{ car.id }}">{{ car.make }} {{ car.model_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label text-secondary small">Ownership</label>
+                        <select name="ownership" class="form-select bg-dark text-white border-secondary">
+                            <option value="1.0">1st Owner</option>
+                            <option value="0.90">2nd Owner (-10%)</option>
+                            <option value="0.80">3rd Owner or more (-20%)</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label text-secondary small">Overall Condition</label>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" name="condition" id="cond1" value="1.0" checked>
+                            <label class="btn btn-outline-secondary btn-sm" for="cond1">Good</label>
+
+                            <input type="radio" class="btn-check" name="condition" id="cond2" value="0.9">
+                            <label class="btn btn-outline-secondary btn-sm" for="cond2">Average</label>
+
+                            <input type="radio" class="btn-check" name="condition" id="cond3" value="0.75">
+                            <label class="btn btn-outline-secondary btn-sm" for="cond3">Rough</label>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label text-secondary small">Tyre Condition (Wheels)</label>
+                        <select name="tyres" class="form-select bg-dark text-white border-secondary">
+                            <option value="1.0">Good (New/Recently Changed)</option>
+                            <option value="0.95">Average (Usable)</option>
+                            <option value="0.90">Rough (Needs Replacement)</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label text-secondary small">Maintenance & Oil Changes</label>
+                        <select name="maintenance" class="form-select bg-dark text-white border-secondary">
+                            <option value="1.05">Proper (Timely Service Record)</option>
+                            <option value="1.0">Good (Regular)</option>
+                            <option value="0.85">Poor (Irregular/Missing)</option>
+                        </select>
+                    </div>
+
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="submit" class="btn btn-success w-100 fw-bold">
+                        Calculate Exact Value
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% if valuation_result %}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // This command triggers the modal instantly when the page loads
+        var resultModal = new bootstrap.Modal(document.getElementById('valueResultModal'));
+        resultModal.show();
+    });
+</script>
+
+<div class="modal fade" id="valueResultModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-black border border-success text-center position-relative">
+            <div class="position-absolute top-0 start-50 translate-middle-x" style="height: 5px; width: 100%; background: linear-gradient(90deg, #00ff88, #00b8ff);"></div>
+            
+            <div class="modal-body p-5">
+                <div class="mb-4">
+                    <div class="rounded-circle bg-success bg-opacity-10 d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                        <i class="fas fa-coins fa-3x text-success"></i>
+                    </div>
+                </div>
+                
+                <h5 class="text-muted text-uppercase small ls-1 mb-2">Current Market Value</h5>
+                <h1 class="display-4 fw-bold text-white mb-1">₹ {{ valuation_result }}</h1>
+                <p class="text-white-50 mb-4">for your {{ valuation_vehicle }}</p>
+                
+                <div class="bg-dark border border-secondary rounded p-3 mb-4 text-start">
+                    <small class="text-muted d-block mb-1"><i class="fas fa-info-circle me-1"></i> <strong>Valuation Logic:</strong></small>
+                    <small class="text-white-50">
+                        Based on age depreciation (10%/yr) adjusted for tyre condition and maintenance history.
+                    </small>
+                </div>
+
+                <button type="button" class="btn btn-success w-100 fw-bold py-2" data-bs-dismiss="modal">
+                    Done
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // 1. Select the Bell Icon and the Dropdown Menu
+        const bellBtn = document.getElementById('dashboardNotifyDropdown');
+        
+        // The menu is the <ul> tag immediately after the <a> tag
+        const dropdownMenu = bellBtn.nextElementSibling; 
+    
+        // 2. Add a Click Listener
+        bellBtn.addEventListener('click', function(event) {
+            // Prevent the link from jumping to the top of the page
+            event.preventDefault();
+            // Stop the click from closing the menu immediately
+            event.stopPropagation(); 
+    
+            // 3. Force Toggle Logic
+            if (dropdownMenu.style.display === 'block') {
+                // If open, close it
+                dropdownMenu.style.display = 'none';
+                dropdownMenu.classList.remove('show');
+            } else {
+                // If closed, force it open
+                dropdownMenu.style.display = 'block';
+                dropdownMenu.classList.add('show');
+                
+                // 4. Force Positioning (Fixes alignment issues)
+                dropdownMenu.style.position = 'absolute';
+                dropdownMenu.style.inset = '0px 0px auto auto'; /* Top-right alignment */
+                dropdownMenu.style.transform = 'translate(0px, 50px)'; /* Push it down slightly */
+            }
+        });
+    
+        // 5. Close menu if clicking anywhere else on the screen
+        document.addEventListener('click', function(event) {
+            if (!bellBtn.contains(event.target) && !dropdownMenu.contains(event.target)) {
+                dropdownMenu.style.display = 'none';
+                dropdownMenu.classList.remove('show');
+            }
+        });
+    });
+    </script>

@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <div>
+            <h2 class="text-white fw-bold mb-1">"What If" Analytics Engine</h2>
+            <p class="text-muted">Simulation: Comparing actual spending vs. your strategic targets.</p>
+        </div>
+        <a href="{% url 'analytics_dashboard' %}" class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-arrow-left me-1"></i> Back
+        </a>
+    </div>
+</div>
+
+<div class="row mb-5">
+    <div class="col-md-12">
+        <div class="stats-card border-success border-start border-5 bg-gradient-dark position-relative overflow-hidden">
+            <div class="d-flex align-items-center justify-content-between position-relative" style="z-index: 2;">
+                <div>
+                    <h6 class="text-success text-uppercase small fw-bold mb-2">Total Potential Savings</h6>
+                    <h1 class="text-white display-4 fw-bold mb-0">₹ {{ fleet_savings }}</h1>
+                    <p class="text-white-50 mt-2 mb-0">Money you could have saved if all vehicles met their targets.</p>
+                </div>
+                <div class="rounded-circle bg-success bg-opacity-25 p-4 d-none d-md-block">
+                    <i class="fas fa-piggy-bank fa-3x text-success"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="stats-card">
+    <h5 class="text-white fw-bold mb-4"><i class="fas fa-list-ul me-2 text-primary"></i> Vehicle Breakdown</h5>
+    <div class="table-responsive">
+        <table class="table table-dark table-hover align-middle mb-0">
+            <thead>
+                <tr class="text-muted small text-uppercase">
+                    <th>Vehicle</th>
+                    <th class="text-end">Actual Fuel Spend</th>
+                    <th class="text-end">Target Spend (Ideal)</th>
+                    <th class="text-end">Potential Savings</th>
+                    <th class="text-end">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in analysis %}
+                <tr>
+                    <td>
+                        <span class="text-white fw-bold">{{ row.vehicle }}</span>
+                    </td>
+                    <td class="text-end">₹ {{ row.actual }}</td>
+                    <td class="text-end text-info">₹ {{ row.ideal }}</td>
+                    <td class="text-end fw-bold text-success">
+                        {% if row.savings > 0 %}
+                            ₹ {{ row.savings }}
+                        {% else %}
+                            <span class="text-muted">0</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-end">
+                        {% if row.savings > 0 %}
+                            <span class="badge bg-danger bg-opacity-10 text-danger">Over Budget</span>
+                        {% else %}
+                            <span class="badge bg-success bg-opacity-10 text-success">On Target</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" class="text-center py-4 text-muted">No sufficient data for simulation.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

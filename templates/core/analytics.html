@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row mb-5">
+    <div class="col-12">
+        <h2 class="text-white fw-bold">Fleet Analytics</h2>
+        <p class="text-muted">Advanced tools to optimize your vehicle costs and efficiency.</p>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="stats-card h-100 p-4 hover-effect text-center">
+            <div class="rounded-circle bg-warning bg-opacity-10 d-inline-flex p-4 mb-4">
+                <i class="fas fa-bullseye fa-3x text-warning"></i>
+            </div>
+            <h4 class="text-white fw-bold mb-3">Set Targets</h4>
+            <p class="text-muted mb-4">Define mileage goals (km/L) and cost limits (₹/km) for each vehicle to track performance.</p>
+            <a href="{% url 'manage_fleet_targets' %}" class="btn btn-outline-warning w-100 py-2">Configure Strategy</a>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="stats-card h-100 p-4 hover-effect text-center">
+            <div class="rounded-circle bg-info bg-opacity-10 d-inline-flex p-4 mb-4">
+                <i class="fas fa-chart-pie fa-3x text-info"></i>
+            </div>
+            <h4 class="text-white fw-bold mb-3">TCO Analysis</h4>
+            <p class="text-muted mb-4">View the "Total Cost of Ownership" breakdown to see exactly where your money goes.</p>
+            <a href="{% url 'tco_report' %}" class="btn btn-outline-info w-100 py-2">View Financials</a>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="stats-card h-100 p-4 hover-effect text-center">
+            <div class="rounded-circle bg-success bg-opacity-10 d-inline-flex p-4 mb-4">
+                <i class="fas fa-magic fa-3x text-success"></i>
+            </div>
+            <h4 class="text-white fw-bold mb-3">"What If" Engine</h4>
+            <p class="text-muted mb-4">Simulate savings: "How much would I save if every car actually met its target?"</p>
+            <a href="{% url 'what_if_analysis' %}" class="btn btn-outline-success w-100 py-2">Run Simulation</a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .hover-effect {
+        transition: transform 0.2s ease, border-color 0.2s ease;
+        border: 1px solid #333;
+    }
+    .hover-effect:hover {
+        transform: translateY(-5px);
+        border-color: #555;
+        background-color: #1a1a1a;
+    }
+</style>
+{% endblock %}

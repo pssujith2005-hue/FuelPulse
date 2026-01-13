@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <div>
+            <h2 class="text-white fw-bold">User Management</h2>
+            <p class="text-muted">Overview of users and their vehicle fleets.</p>
+        </div>
+        <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-arrow-left me-1"></i> Back to Command Center
+        </a>
+    </div>
+</div>
+
+<div class="stats-card p-0 overflow-hidden">
+    <div class="table-responsive">
+        <table class="table table-dark table-hover align-middle mb-0">
+            <thead>
+                <tr class="text-muted small text-uppercase border-bottom border-secondary">
+                    <th class="py-3 ps-4">User Details</th>
+                    <th>Contact Info</th>
+                    <th style="width: 30%;">Registered Fleet</th>
+                    <th>Account Status</th>
+                    <th class="text-end pe-4">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u in users %}
+                <tr>
+                    <td class="ps-4">
+                        <div class="d-flex align-items-center">
+                            <div class="rounded-circle bg-secondary bg-opacity-25 d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                <i class="fas fa-user text-white"></i>
+                            </div>
+                            <div>
+                                <div class="fw-bold text-white">{{ u.username }}</div>
+                                <small class="text-muted">Joined: {{ u.date_joined|date:"M Y" }}</small>
+                            </div>
+                        </div>
+                    </td>
+
+                    <td class="text-muted">
+                        <div>{{ u.email }}</div>
+                        {% if u.phone_number %}
+                            <small class="text-white-50">{{ u.phone_number }}</small>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% with vehicles=u.vehicle_set.all %}
+                            {% if vehicles %}
+                                <div class="d-flex flex-column gap-2">
+                                    {% for v in vehicles %}
+                                    <div class="bg-black border border-secondary rounded p-2 d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <div class="text-white small fw-bold">{{ v.make }} {{ v.model_name }}</div>
+                                            <div class="text-muted" style="font-size: 11px;">{{ v.license_plate }}</div>
+                                        </div>
+                                        
+                                        {% if v.ownership_type == 'Sold' %}
+                                            <span class="badge bg-danger" style="font-size: 10px;">SOLD OUT</span>
+                                        {% elif v.ownership_type == 'Rented' %}
+                                            <span class="badge bg-warning text-dark" style="font-size: 10px;">RENTED</span>
+                                        {% else %}
+                                            <span class="badge bg-info text-dark" style="font-size: 10px;">OWNED</span>
+                                        {% endif %}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <span class="badge bg-secondary text-dark">No Vehicles</span>
+                            {% endif %}
+                        {% endwith %}
+                    </td>
+
+                    <td>
+                        {% if u.is_active %}
+                            <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-3">Active</span>
+                        {% else %}
+                            <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 px-3">Suspended</span>
+                        {% endif %}
+                    </td>
+
+                    <td class="text-end pe-4">
+                        <div class="btn-group">
+                            {% if u.is_active %}
+                                <a href="{% url 'toggle_user_status' u.id %}" class="btn btn-sm btn-outline-warning" title="Suspend User">
+                                    <i class="fas fa-ban"></i>
+                                </a>
+                            {% else %}
+                                <a href="{% url 'toggle_user_status' u.id %}" class="btn btn-sm btn-outline-success" title="Reactivate User">
+                                    <i class="fas fa-check"></i>
+                                </a>
+                            {% endif %}
+
+                            <a href="{% url 'delete_user' u.id %}" class="btn btn-sm btn-outline-danger" 
+                               onclick="return confirm('⚠️ DANGER: This will permanently delete {{ u.username }} and all their data.');"
+                               title="Delete Account">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center py-5">
+                        <p class="text-muted">No registered users found.</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

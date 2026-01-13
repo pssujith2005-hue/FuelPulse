@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="row g-4 mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-end">
+        <div>
+            <h2 class="text-white fw-bold">Fleet Analytics</h2>
+            <p class="text-muted mb-0">Financial breakdown and efficiency reports.</p>
+        </div>
+        <div class="text-end">
+            <div class="text-muted small">Total Spend (All Time)</div>
+            <div class="fs-3 fw-bold text-white">₹ {{ total_spent|floatformat:2 }}</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    
+    <div class="col-lg-8">
+        <div class="stats-card h-100">
+            <h5 class="text-white fw-bold mb-4">Monthly Spending Trend</h5>
+            <div style="height: 300px;">
+                <canvas id="trendChart"></canvas>
+            </div>
+            <div class="mt-3 text-center text-muted small">
+                Includes both Fuel Logs and Expense Logs combined.
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="stats-card h-100">
+            <h5 class="text-white fw-bold mb-4">Cost Distribution</h5>
+            <div style="height: 250px; position: relative;">
+                <canvas id="categoryChart"></canvas>
+            </div>
+            <div class="mt-4">
+                <div class="d-flex justify-content-between border-bottom border-secondary pb-2 mb-2">
+                    <span class="text-muted">Total Expenses</span>
+                    <span class="text-white fw-bold">₹ {{ total_expenses|floatformat:2 }}</span>
+                </div>
+                <div class="small text-muted text-center mt-3">
+                    Breakdown of Maintenance, Insurance, etc.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 1. CONFIG FOR LINE CHART (Trends)
+    const ctxTrend = document.getElementById('trendChart').getContext('2d');
+    new Chart(ctxTrend, {
+        type: 'line',
+        data: {
+            labels: {{ line_labels|safe }}, // Data from Django View
+            datasets: [{
+                label: 'Total Spending (₹)',
+                data: {{ line_data|safe }},   // Data from Django View
+                borderColor: '#3b82f6',       // Electric Blue
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                borderWidth: 2,
+                tension: 0.4,                 // Smooth curves
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    grid: { color: '#27272a' },
+                    ticks: { color: '#a1a1aa' }
+                },
+                x: {
+                    grid: { display: false },
+                    ticks: { color: '#a1a1aa' }
+                }
+            }
+        }
+    });
+
+    // 2. CONFIG FOR DOUGHNUT CHART (Categories)
+    const ctxCategory = document.getElementById('categoryChart').getContext('2d');
+    new Chart(ctxCategory, {
+        type: 'doughnut',
+        data: {
+            labels: {{ pie_labels|safe }}, // Data from Django
+            datasets: [{
+                data: {{ pie_data|safe }},   // Data from Django
+                backgroundColor: [
+                    '#3b82f6', // Blue
+                    '#ef4444', // Red
+                    '#10b981', // Green
+                    '#f59e0b', // Yellow
+                    '#8b5cf6', // Purple
+                    '#ec4899'  // Pink
+                ],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { color: '#ffffff', boxWidth: 12 }
+                }
+            },
+            cutout: '70%', // Thinner ring
+        }
+    });
+</script>
+{% endblock %}

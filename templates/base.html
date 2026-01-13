@@ -1,0 +1,313 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FuelPulse Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    
+    <style>
+        /* --- TEXT VISIBILITY FIXES --- */
+        .text-muted { color: #b0b0b0 !important; }
+        .small, small { color: #aaaaaa !important; }
+        ::placeholder { color: #888 !important; opacity: 1; }
+
+        /* --- REDUCED SIDEBAR SPACING --- */
+        .sidebar .nav-link {
+            padding-top: 6px !important;    /* Reduced padding */
+            padding-bottom: 6px !important; /* Reduced padding */
+        }
+        /* Adjust header spacing */
+        .sidebar .small.text-uppercase {
+            margin-top: 15px !important;
+            margin-bottom: 5px !important;
+        }
+    </style>
+</head>
+<body>
+    <nav class="sidebar">
+        <div class="brand-logo">
+            <i class="fas fa-car text-primary"></i> FuelPulse
+        </div>
+        
+        <div class="nav-column">
+            
+            {% if user.is_superuser and '/admin-panel/' in request.path %}
+            
+                <div class="small text-muted text-uppercase fw-bold px-3">Admin Controls</div>
+                
+                <a href="{% url 'admin_dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
+                    <i class="fas fa-tachometer-alt"></i> Command Center
+                </a>
+                <a href="{% url 'manage_users' %}" class="nav-link {% if request.resolver_match.url_name == 'manage_users' %}active{% endif %}">
+                    <i class="fas fa-users-cog"></i> Manage Users
+                </a>
+
+            {% else %}
+            
+                <a href="{% url 'dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                    <i class="fas fa-th-large"></i> Dashboard
+                </a>
+
+                <a href="{% url 'analytics_dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'analytics_dashboard' %}active{% endif %}">
+                    <i class="fas fa-chart-line"></i> Fleet Analytics
+                </a>
+
+                <a href="{% url 'log_trip' %}" class="nav-link {% if request.resolver_match.url_name == 'log_trip' %}active{% endif %}">
+                    <i class="fas fa-location-arrow"></i> Log Trip
+                </a>
+                <a href="{% url 'log_expense' %}" class="nav-link {% if request.resolver_match.url_name == 'log_expense' %}active{% endif %}">
+                    <i class="fas fa-file-invoice-dollar"></i> Log Expense
+                </a>
+                <a href="{% url 'history' %}" class="nav-link {% if request.resolver_match.url_name == 'history' %}active{% endif %}">
+                    <i class="fas fa-history"></i> History
+                </a>
+                <a href="{% url 'reports' %}" class="nav-link {% if request.resolver_match.url_name == 'reports' %}active{% endif %}">
+                    <i class="fas fa-chart-pie"></i> Reports
+                </a>
+                <a href="{% url 'profile' %}" class="nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+                    <i class="fas fa-user-circle"></i> Profile
+                </a>
+
+            {% endif %}
+        </div>
+
+        <div class="sidebar-footer">
+            <a href="#" class="nav-link" onclick="toggleChat()">
+                <i class="fas fa-headset"></i> Customer Support
+            </a>
+            <div class="sidebar-footer">
+                <a href="javascript:void(0);" onclick="confirmLogout()" class="nav-link text-danger">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            
+                <form id="logout-form" action="{% url 'logout' %}" method="post" style="display: none;">
+                    {% csrf_token %}
+                </form>
+            </div>
+        
+            <script>
+                function confirmLogout() {
+                    if (confirm("Are you sure you want to log out?")) {
+                        document.getElementById('logout-form').submit();
+                    }
+                }
+            </script>
+        </div>
+    </nav>
+
+    <div class="main-content">
+        {% block content %}{% endblock %}
+    </div>
+
+    <div id="chatWindow" class="card shadow-lg" style="display: none; position: fixed; bottom: 30px; left: 320px; width: 350px; z-index: 1000; height: 450px; background-color: #1a1a1a; border: 1px solid #333;">
+        <div class="card-header bg-dark text-white d-flex justify-content-between border-bottom border-secondary">
+            <strong><i class="fas fa-robot text-primary"></i> AI Support</strong>
+            <button onclick="toggleChat()" class="btn btn-sm text-white"><i class="fas fa-times"></i></button>
+        </div>
+        
+        <div id="chatMessages" class="card-body overflow-auto" style="height: 340px;">
+            <div class="text-muted small text-center mt-2">How can I help you today?</div>
+        </div>
+
+        <div class="card-footer bg-dark border-top border-secondary p-2">
+            <div class="input-group">
+                <input type="text" id="userMsg" class="form-control form-control-sm bg-black text-white border-secondary" placeholder="Type here...">
+                <button onclick="sendMessage()" class="btn btn-primary btn-sm"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+    <script>
+        function toggleChat() {
+            const chat = document.getElementById('chatWindow');
+            chat.style.display = chat.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('userMsg');
+            const msg = input.value;
+            if(!msg) return;
+
+            const chatBox = document.getElementById('chatMessages');
+            
+            // Show User Message
+            chatBox.innerHTML += `<div class="text-end mb-2"><span class="bg-primary text-white p-2 rounded d-inline-block small">${msg}</span></div>`;
+            input.value = '';
+
+            // Simulated Reply
+            setTimeout(() => {
+                chatBox.innerHTML += `<div class="text-start mb-2"><span class="bg-secondary text-white p-2 rounded d-inline-block small">I can help with that! Check the sidebar for options.</span></div>`;
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }, 1000);
+        }
+    </script>
+
+<style>
+    /* Position the widget at bottom right */
+    #chat-widget-container {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 1000;
+        font-family: Arial, sans-serif;
+    }
+
+    /* Open Button Style */
+    #open-chat-btn {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 15px 20px;
+        border-radius: 30px;
+        font-size: 16px;
+        cursor: pointer;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    /* Chat Box Style */
+    #chat-box {
+        width: 300px;
+        height: 400px;
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        margin-bottom: 10px; /* Space between box and button if needed */
+    }
+
+    .hidden {
+        display: none !important;
+    }
+
+    /* Header */
+    .chat-header {
+        background-color: #007bff;
+        color: white;
+        padding: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    /* Content Area */
+    .chat-content {
+        flex: 1;
+        padding: 10px;
+        overflow-y: auto;
+        background-color: #f9f9f9;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    /* Message Bubbles */
+    .bot-msg {
+        background-color: #e9ecef;
+        padding: 8px 12px;
+        border-radius: 10px;
+        align-self: flex-start;
+        max-width: 80%;
+    }
+    .user-msg {
+        background-color: #007bff;
+        color: white;
+        padding: 8px 12px;
+        border-radius: 10px;
+        align-self: flex-end;
+        max-width: 80%;
+    }
+
+    /* Options Area */
+    .chat-controls {
+        padding: 10px;
+        border-top: 1px solid #ddd;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+
+    .option-btn {
+        background-color: white;
+        border: 1px solid #007bff;
+        color: #007bff;
+        padding: 5px 10px;
+        border-radius: 15px;
+        cursor: pointer;
+        font-size: 12px;
+        flex-grow: 1;
+    }
+    .option-btn:hover {
+        background-color: #007bff;
+        color: white;
+    }
+</style>
+
+<style>
+    /* Simple Chat Widget Styling */
+    #chat-widget {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 320px;
+        height: 450px;
+        background: white;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        display: flex;
+        flex-direction: column;
+        font-family: sans-serif;
+        z-index: 1000;
+    }
+    #chat-header {
+        background: #222;
+        color: white;
+        padding: 15px;
+        border-radius: 10px 10px 0 0;
+        font-weight: bold;
+    }
+    #chat-log {
+        flex: 1;
+        padding: 10px;
+        overflow-y: scroll;
+        background: #f4f4f4;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    #chat-input-area {
+        display: flex;
+        padding: 10px;
+        border-top: 1px solid #ddd;
+    }
+    input[type="text"] {
+        flex: 1;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        outline: none;
+    }
+    button#send-btn {
+        background: #28a745;
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        margin-left: 5px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    
+    /* Message Bubbles */
+    .msg { padding: 8px 12px; border-radius: 15px; max-width: 80%; font-size: 14px; }
+    .user-msg { background: #007bff; color: white; align-self: flex-end; }
+    .ai-msg { background: #e9ecef; color: #333; align-self: flex-start; }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
