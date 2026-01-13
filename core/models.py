@@ -64,8 +64,6 @@ class FuelLog(models.Model):
     odometer_reading = models.PositiveIntegerField()
     liters_filled = models.DecimalField(max_digits=6, decimal_places=2)
     total_cost = models.DecimalField(max_digits=8, decimal_places=2)
-    
-    # Auto-calculated fields
     calculated_km_per_liter = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
     calculated_cost_per_km = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
 
