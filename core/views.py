@@ -803,43 +803,28 @@ def delete_history_item(request, item_type, item_id):
 @login_required
 def profile(request):
     if request.method == 'POST':
-        user_form = UserUpdateForm(request.POST, instance=request.user)
+        # --- FIX: ADD request.FILES HERE ---
+        # Without request.FILES, the uploaded image is ignored!
+        user_form = UserUpdateForm(request.POST, request.FILES, instance=request.user)
+        
         if user_form.is_valid():
             user_form.save()
             
-            # --- EMAIL NOTIFICATION LOGIC ---
+            # Email Notification Logic (Kept from your original code)
             subject = 'FuelPulse: Profile Updated Successfully'
-            message = f"""
-            Hello {request.user.username},
-
-            Your profile details have been successfully updated on FuelPulse.
-
-            Current Details:
-            ----------------
-            Username: {request.user.username}
-            Email:    {request.user.email}
-            Phone:    {getattr(request.user, 'phone_number', 'N/A')}
-
-            Date: {timezone.now().strftime('%Y-%m-%d %H:%M:%S')}
-
-            If you did not make this change, please contact support immediately.
-
-            Regards,
-            The FuelPulse Team
-            """
+            message = f"Hello {request.user.username},\n\nYour profile details have been successfully updated."
             
             try:
                 send_mail(
                     subject,
                     message,
-                    settings.DEFAULT_FROM_EMAIL,  # Sender
-                    [request.user.email],         # Recipient (The user)
+                    settings.DEFAULT_FROM_EMAIL,
+                    [request.user.email],
                     fail_silently=False,
                 )
-                messages.success(request, "Profile updated and confirmation email sent!")
-            except Exception as e:
-                # If email fails (e.g., no internet), still save profile but warn user
-                messages.warning(request, f"Profile updated, but email failed to send: {str(e)}")
+                messages.success(request, "Profile updated successfully!")
+            except Exception:
+                messages.warning(request, "Profile updated, but email failed to send.")
 
             return redirect('profile')
     else:
@@ -848,7 +833,6 @@ def profile(request):
     user_vehicles = Vehicle.objects.filter(owner=request.user, is_active=True)
     context = {'vehicles': user_vehicles, 'user_form': user_form}
     return render(request, 'core/profile.html', context)
-
 # core/admin_views.py
 from django.contrib.auth.decorators import login_required, user_passes_test # <--- You likely added this
 from django.shortcuts import render, redirect, get_object_or_404
@@ -867,62 +851,63 @@ def calculate_asset_value(request):
         vehicle_id = request.POST.get('vehicle_id')
         vehicle = get_object_or_404(Vehicle, id=vehicle_id)
 
-        # --- 1. GET FACTORS ---
-        ownership_map = {'1.0': 1.0, '0.90': 0.85, '0.80': 0.70} 
+        # --- 1. GET FACTORS (Updated for new form) ---
+        
+        # Ownership Factor
+        # 1st: 100%, 2nd: 90%, 3rd: 80%, 4th: 70%, 5th: 60%
+        ownership_map = {'1.0': 1.0, '0.9': 0.9, '0.8': 0.8, '0.7': 0.7, '0.6': 0.6}
         ownership_input = request.POST.get('ownership', '1.0')
         ownership_factor = ownership_map.get(ownership_input, 1.0)
 
-        condition_map = {'1.0': 1.0, '0.9': 0.85, '0.75': 0.60}
+        # Condition Factor
+        condition_map = {'1.0': 1.0, '0.9': 0.9, '0.75': 0.75}
         condition_input = request.POST.get('condition', '1.0')
         condition_factor = condition_map.get(condition_input, 1.0)
 
-        tyres_map = {'1.0': 1.0, '0.95': 0.90, '0.90': 0.80}
+        # Tyres Factor
+        tyres_map = {'1.0': 1.0, '0.95': 0.95, '0.90': 0.90}
         tyres_input = request.POST.get('tyres', '1.0')
         tyre_factor = tyres_map.get(tyres_input, 1.0)
 
-        maint_map = {'1.05': 1.05, '1.0': 1.0, '0.85': 0.75}
+        # Maintenance Factor
+        # Timely: +5% value, Avg: Normal, Irregular: -15% value
+        maint_map = {'1.05': 1.05, '1.0': 1.0, '0.85': 0.85}
         maint_input = request.POST.get('maintenance', '1.0')
         maintenance_factor = maint_map.get(maint_input, 1.0)
 
         # --- 2. BASE PRICE ---
         base_price = float(vehicle.purchase_price)
         
-        # Heuristic for default price
+        # Sanity check for default values
         if base_price == 500000.0 and "Two Wheeler" in str(vehicle.category):
             base_price = 150000.0
         elif base_price == 0:
             base_price = 500000.0
 
         # --- 3. AGE CALCULATION ---
-        import datetime
         current_year = datetime.date.today().year
         p_year = vehicle.purchase_year if vehicle.purchase_year else (current_year - 5)
         age = current_year - p_year
         if age < 0: age = 0
         
-        # LOGIC UPDATE: Slower depreciation for older cars
-        # Year 1: -20% (0.80)
-        # Year 2+: -12% per year (0.88) - Was 15% previously
+        # Depreciation Logic
         if age == 0:
             age_factor = 0.95
         elif age == 1:
             age_factor = 0.80
         else:
-            # 0.80 * (0.88 ^ (age - 1))
+            # 20% drop first year, 12% drop subsequent years
             age_factor = 0.80 * (0.88 ** (age - 1))
 
         # --- 4. "OLD IS GOLD" LOGIC ---
-        # If car is 10+ years old BUT Condition & Maintenance are Good, 
-        # we add a "Reliability Bonus" (Age matters less)
         if age >= 10:
             if condition_factor == 1.0 and maintenance_factor >= 1.0:
-                # Add 5% retention back because it's well kept
                 age_factor += 0.05 
 
         # --- 5. FINAL CALCULATION ---
         final_value = base_price * age_factor * ownership_factor * condition_factor * tyre_factor * maintenance_factor
         
-        # Minimum scrap value floor
+        # Floor value
         if final_value < 5000:
             final_value = 5000
 

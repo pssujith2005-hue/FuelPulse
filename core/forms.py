@@ -7,17 +7,17 @@ from .models import Vehicle
 
 # --- USER AUTH FORMS (UPDATED: Added Phone Number) ---
 class CustomUserCreationForm(UserCreationForm):
-    email = forms.EmailField(required=True)
-    phone_number = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'form-control bg-dark text-white border-secondary'}))
-    
     class Meta:
         model = User
-        fields = ['username', 'email', 'phone_number']
+        # ONLY include 'username'. 
+        # Passwords are included automatically by the parent UserCreationForm.
+        fields = ('username',)
 
+# core/forms.py
 class UserUpdateForm(forms.ModelForm):
-    email = forms.EmailField()
-    phone_number = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'form-control bg-dark text-white border-secondary'}))
-
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'phone_number', 'profile_photo'] # Added profile_photo
     class Meta:
         model = User
         fields = ['username', 'email', 'phone_number']

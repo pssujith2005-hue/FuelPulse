@@ -4,9 +4,14 @@ from django.utils import timezone
 import datetime
 
 # 1. Custom User
+# core/models.py
+# core/models.py
+
 class User(AbstractUser):
     is_manager = models.BooleanField(default=False)
     phone_number = models.CharField(max_length=15, blank=True)
+    # --- ADD THIS LINE ---
+    profile_photo = models.ImageField(upload_to='profile_photos/', blank=True, null=True)
 
 # 2. Vehicle Model (Updated for Dynamic Dropdowns)
 class Vehicle(models.Model):

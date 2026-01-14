@@ -3,6 +3,13 @@ from django.urls import path, include
 from django.contrib.auth import views as auth_views
 from core import views
 from core import admin_views
+from django.conf import settings               # <--- Add this
+from django.conf.urls.static import static     # <--- Add this
+
+
+
+
+
 
 urlpatterns = [
     # --- DJANGO ADMIN ---
@@ -58,3 +65,6 @@ urlpatterns = [
     path('logout/', views.custom_logout_view, name='logout'),
     path('calculate-value/', views.calculate_asset_value, name='calculate_value')
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

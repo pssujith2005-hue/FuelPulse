@@ -1,167 +1,375 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
-<div class="row mb-4">
-    <div class="col-12 d-flex justify-content-between align-items-center">
-        <div>
-            <h2 class="text-white fw-bold">{{ vehicle.make }} {{ vehicle.model_name }}</h2>
-            <p class="text-muted mb-0">{{ vehicle.license_plate }} | {{ vehicle.fuel_type }} | ODO: {{ vehicle.current_odometer }} km</p>
+<style>
+    /* --- SASSY DASHBOARD THEME --- */
+    :root {
+        --bg-deep: #000000;
+        --card-bg: #0a0a0a;
+        --glass-border: rgba(255, 255, 255, 0.1);
+        --accent-gradient: linear-gradient(135deg, #06b6d4 0%, #8b5cf6 100%);
+        --text-glow: linear-gradient(90deg, #22d3ee, #c084fc);
+    }
+
+    body, .main-content {
+        background-color: var(--bg-deep) !important;
+        color: white;
+        font-family: 'Outfit', sans-serif;
+    }
+
+    /* --- CARDS --- */
+    .sassy-card {
+        background: var(--card-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        position: relative;
+        overflow: hidden;
+        height: 100%;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .sassy-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(6, 182, 212, 0.15);
+        border-color: rgba(139, 92, 246, 0.3);
+    }
+
+    /* Glowing Border Effect on Top */
+    .sassy-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 3px;
+        background: var(--accent-gradient);
+    }
+
+    /* --- TYPOGRAPHY --- */
+    .gradient-text {
+        background: var(--text-glow);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: 800;
+        display: inline-block;
+    }
+
+    .text-label {
+        color: #94a3b8;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    /* --- PROGRESS BARS --- */
+    .progress {
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        height: 6px;
+        overflow: hidden;
+    }
+    .progress-bar {
+        border-radius: 10px;
+    }
+    .progress-bar.bg-gradient-success { background: linear-gradient(90deg, #10b981, #34d399); }
+    .progress-bar.bg-gradient-warning { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+    .progress-bar.bg-gradient-danger { background: linear-gradient(90deg, #ef4444, #f87171); }
+    .progress-bar.bg-gradient-info { background: linear-gradient(90deg, #06b6d4, #22d3ee); }
+
+    /* --- BUTTONS --- */
+    .btn-sassy {
+        background: var(--accent-gradient);
+        border: none;
+        color: white;
+        font-weight: 700;
+        padding: 10px 25px;
+        border-radius: 12px;
+        transition: 0.3s;
+        box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+    }
+    .btn-sassy:hover {
+        opacity: 0.95;
+        transform: translateY(-2px);
+        color: white;
+        box-shadow: 0 6px 20px rgba(6, 182, 212, 0.5);
+    }
+
+    .btn-sassy-outline {
+        background: transparent;
+        border: 1px solid rgba(255,255,255,0.2);
+        color: #cbd5e1;
+        font-weight: 600;
+        padding: 8px 20px;
+        border-radius: 12px;
+        transition: 0.3s;
+    }
+    .btn-sassy-outline:hover {
+        border-color: white;
+        color: white;
+        background: rgba(255,255,255,0.05);
+    }
+
+    /* --- TABLE --- */
+    .table-sassy {
+        color: #e2e8f0;
+    }
+    .table-sassy thead th {
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        color: #94a3b8;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        padding-bottom: 1rem;
+    }
+    .table-sassy tbody td {
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        padding: 1rem 0.5rem;
+    }
+    .table-sassy tbody tr:hover {
+        background-color: rgba(255,255,255,0.02);
+    }
+
+    /* --- MODAL INPUTS (Black bg, White text) --- */
+    .modal-content {
+        background-color: #000000;
+        border: 1px solid rgba(255,255,255,0.2);
+    }
+    .modal-header, .modal-footer {
+        border-color: rgba(255,255,255,0.1);
+    }
+    .form-control, .form-select {
+        background-color: #000000 !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        color: #ffffff !important;
+        border-radius: 12px;
+        padding: 10px 15px;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: #8b5cf6 !important;
+        box-shadow: 0 0 10px rgba(139, 92, 246, 0.2) !important;
+        background-color: #000000 !important;
+    }
+</style>
+
+<!-- HEADER SECTION -->
+<div class="row mb-5 align-items-end">
+    <div class="col-md-8">
+        <h1 class="gradient-text display-5 mb-1">{{ vehicle.make }} {{ vehicle.model_name }}</h1>
+        <div class="d-flex align-items-center gap-3 text-muted">
+            <span class="badge bg-white bg-opacity-10 border border-secondary text-light px-3 py-2 rounded-pill">{{ vehicle.license_plate }}</span>
+            <span><i class="fas fa-gas-pump me-1"></i> {{ vehicle.fuel_type }}</span>
+            <span><i class="fas fa-road me-1"></i> {{ vehicle.current_odometer }} km</span>
         </div>
-        <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">Back to Garage</a>
+    </div>
+    <div class="col-md-4 text-md-end mt-3 mt-md-0">
+        <a href="{% url 'dashboard' %}" class="btn-sassy-outline">
+            <i class="fas fa-arrow-left me-2"></i> Back to Garage
+        </a>
     </div>
 </div>
 
+<!-- KEY METRICS ROW -->
 <div class="row g-4 mb-5">
     <div class="col-md-4">
-        <div class="stats-card border-start border-success border-4 h-100">
-            <h6 class="text-muted text-uppercase small fw-bold">Average Mileage</h6>
-            <h2 class="text-white fw-bold mt-2">{{ avg_mileage }} <small class="fs-6 text-muted">km/L</small></h2>
+        <div class="sassy-card d-flex flex-column justify-content-center">
+            <h6 class="text-label">Average Mileage</h6>
+            <div>
+                <h2 class="gradient-text mb-0">{{ avg_mileage }}</h2>
+                <span class="text-muted ms-1">km/L</span>
+            </div>
         </div>
     </div>
     <div class="col-md-4">
-        <div class="stats-card border-start border-warning border-4 h-100">
-            <h6 class="text-muted text-uppercase small fw-bold">Total Fuel Cost</h6>
-            <h2 class="text-white fw-bold mt-2">₹ {{ total_fuel_cost }}</h2>
+        <div class="sassy-card d-flex flex-column justify-content-center">
+            <h6 class="text-label">Total Fuel Cost</h6>
+            <div>
+                <h2 class="gradient-text mb-0">₹ {{ total_fuel_cost }}</h2>
+            </div>
         </div>
     </div>
     <div class="col-md-4">
-        <div class="stats-card border-start border-primary border-4 h-100">
-            <h6 class="text-muted text-uppercase small fw-bold">Fuel Consumed</h6>
-            <h2 class="text-white fw-bold mt-2">{{ total_liters }} <small class="fs-6 text-muted">Liters</small></h2>
+        <div class="sassy-card d-flex flex-column justify-content-center">
+            <h6 class="text-label">Fuel Consumed</h6>
+            <div>
+                <h2 class="gradient-text mb-0">{{ total_liters }}</h2>
+                <span class="text-muted ms-1">Liters</span>
+            </div>
         </div>
     </div>
 </div>
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h5 class="text-white fw-bold mb-0"><i class="fas fa-robot text-info me-2"></i> AI Maintenance Forecast</h5>
-    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#updateServiceModal">
-        <i class="fas fa-plus me-1"></i> Update Service
+<!-- MAINTENANCE SECTION -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="text-white fw-bold mb-0">
+        <span style="background: rgba(6, 182, 212, 0.15); border-radius: 50%; width: 40px; height: 40px; display: inline-flex; align-items: center; justify-content: center; margin-right: 10px;">
+            <i class="fas fa-robot text-info"></i>
+        </span>
+        Maintenance Forecast
+    </h4>
+    <button class="btn-sassy btn-sm" data-bs-toggle="modal" data-bs-target="#updateServiceModal">
+        <i class="fas fa-plus me-2"></i> Update Service
     </button>
 </div>
+
 <div class="row g-4 mb-5">
-    
+    <!-- OIL CHANGE CARD -->
     <div class="col-md-4">
-        <div class="stats-card h-100 position-relative overflow-hidden">
-            <div class="d-flex justify-content-between align-items-start mb-3">
+        <div class="sassy-card">
+            <div class="d-flex justify-content-between align-items-start mb-4">
                 <div>
-                    <h6 class="text-white fw-bold"><i class="fas fa-oil-can text-warning me-2"></i> Oil Change</h6>
-                    <small class="text-muted">Due at {{ maint.oil.target_km }} km</small>
+                    <h6 class="text-white fw-bold mb-1"><i class="fas fa-oil-can text-warning me-2"></i> Oil Change</h6>
+                    <small class="text-muted">Target: {{ maint.oil.target_km }} km</small>
                 </div>
                 {% if maint.oil.status == 'Good' %}
-                    <span class="badge bg-success bg-opacity-25 text-success">Healthy</span>
+                    <span class="badge bg-success bg-opacity-20 text-success border border-success border-opacity-25">Healthy</span>
                 {% elif maint.oil.status == 'Warning' %}
-                    <span class="badge bg-warning bg-opacity-25 text-warning">Upcoming</span>
+                    <span class="badge bg-warning bg-opacity-20 text-warning border border-warning border-opacity-25">Upcoming</span>
                 {% else %}
-                    <span class="badge bg-danger bg-opacity-25 text-danger">Urgent</span>
+                    <span class="badge bg-danger bg-opacity-20 text-danger border border-danger border-opacity-25">Urgent</span>
                 {% endif %}
             </div>
             
-            <small class="text-muted d-block mb-1">Last Updated:</small>
-            <h3 class="text-white fw-bold mb-0">{{ maint.oil.date }}</h3>
-            <p class="text-muted small mt-1">
-                {% if maint.oil.remaining_km %}
-                    ~ {{ maint.oil.remaining_km }} km remaining
-                {% else %}
-                    Log more trips to predict
-                {% endif %}
-            </p>
+            <div class="mb-3">
+                <div class="d-flex justify-content-between small text-muted mb-1">
+                    <span>Progress</span>
+                    <span>{{ maint.oil.remaining_km|default:"0" }} km left</span>
+                </div>
+                <div class="progress">
+                    <div class="progress-bar {% if maint.oil.status == 'Critical' %}bg-gradient-danger{% else %}bg-gradient-warning{% endif %}" 
+                         role="progressbar" style="width: 75%"></div>
+                </div>
+            </div>
             
-            <div class="progress" style="height: 4px; background: #333;">
-                <div class="progress-bar {% if maint.oil.status == 'Critical' %}bg-danger{% else %}bg-warning{% endif %}" 
-                     role="progressbar" style="width: 75%"></div>
+            <div class="d-flex align-items-center justify-content-between pt-3 border-top border-secondary border-opacity-25">
+                <small class="text-muted">Last Service:</small>
+                <span class="text-white fw-bold">{{ maint.oil.date }}</span>
             </div>
         </div>
     </div>
 
+    <!-- TYRE CHANGE CARD -->
     <div class="col-md-4">
-        <div class="stats-card h-100">
-            <div class="d-flex justify-content-between align-items-start mb-3">
+        <div class="sassy-card">
+            <div class="d-flex justify-content-between align-items-start mb-4">
                 <div>
-                    <h6 class="text-white fw-bold"><i class="fas fa-compact-disc text-secondary me-2"></i> Tyre Change</h6>
-                    <small class="text-muted">Due at {{ maint.tyre.target_km }} km</small>
-                    
+                    <h6 class="text-white fw-bold mb-1"><i class="fas fa-compact-disc text-secondary me-2"></i> Tyre Change</h6>
+                    <small class="text-muted">Target: {{ maint.tyre.target_km }} km</small>
                 </div>
                 {% if maint.tyre.status == 'Good' %}
-                    <span class="badge bg-success bg-opacity-25 text-success">Good Condition</span>
+                    <span class="badge bg-success bg-opacity-20 text-success border border-success border-opacity-25">Good</span>
                 {% else %}
-                    <span class="badge bg-warning bg-opacity-25 text-warning">Check Soon</span>
+                    <span class="badge bg-warning bg-opacity-20 text-warning border border-warning border-opacity-25">Check</span>
                 {% endif %}
             </div>
-            <small class="text-muted d-block mb-1">Last Updated:</small>
-            <h3 class="text-white fw-bold mb-0">{{ maint.tyre.date }}</h3>
-            <p class="text-muted small mt-1">
-                {% if maint.tyre.remaining_km %}
-                    ~ {{ maint.tyre.remaining_km }} km remaining
-                {% else %}
-                    Log more trips to predict
-                {% endif %}
-            </p>
-             <div class="progress" style="height: 4px; background: #333;">
-                <div class="progress-bar bg-secondary" role="progressbar" style="width: 40%"></div>
+            
+            <div class="mb-3">
+                <div class="d-flex justify-content-between small text-muted mb-1">
+                    <span>Wear Level</span>
+                    <span>{{ maint.tyre.remaining_km|default:"-" }} km est.</span>
+                </div>
+                <div class="progress">
+                    <div class="progress-bar bg-gradient-info" role="progressbar" style="width: 40%"></div>
+                </div>
+            </div>
+
+            <div class="d-flex align-items-center justify-content-between pt-3 border-top border-secondary border-opacity-25">
+                <small class="text-muted">Last Service:</small>
+                <span class="text-white fw-bold">{{ maint.tyre.date }}</span>
             </div>
         </div>
     </div>
 
+    <!-- GENERAL SERVICE CARD -->
     <div class="col-md-4">
-        <div class="stats-card h-100">
-            <div class="d-flex justify-content-between align-items-start mb-3">
+        <div class="sassy-card">
+            <div class="d-flex justify-content-between align-items-start mb-4">
                 <div>
-                    <h6 class="text-white fw-bold"><i class="fas fa-tools text-primary me-2"></i> General Service</h6>
-                    <small class="text-muted">Due at {{ maint.general.target_km }} km</small>
+                    <h6 class="text-white fw-bold mb-1"><i class="fas fa-tools text-primary me-2"></i> General Service</h6>
+                    <small class="text-muted">Target: {{ maint.general.target_km }} km</small>
                 </div>
-                <span class="badge bg-info bg-opacity-25 text-info">Routine</span>
+                <span class="badge bg-info bg-opacity-20 text-info border border-info border-opacity-25">Routine</span>
             </div>
-            <small class="text-muted d-block mb-1">Last Updated:</small>
-            <h3 class="text-white fw-bold mb-0">{{ maint.general.date }}</h3>
-            <p class="text-muted small mt-1">Periodic maintenance check</p>
+            
+            <div class="mb-3">
+                <div class="d-flex justify-content-between small text-muted mb-1">
+                    <span>Schedule</span>
+                    <span>Periodic</span>
+                </div>
+                <div class="progress">
+                    <div class="progress-bar bg-gradient-success" role="progressbar" style="width: 20%"></div>
+                </div>
+            </div>
+
+            <div class="d-flex align-items-center justify-content-between pt-3 border-top border-secondary border-opacity-25">
+                <small class="text-muted">Last Service:</small>
+                <span class="text-white fw-bold">{{ maint.general.date }}</span>
+            </div>
         </div>
     </div>
 </div>
 
+<!-- BOTTOM GRID -->
 <div class="row g-4">
+    <!-- DOCUMENTS TABLE -->
     <div class="col-lg-8">
-        <div class="stats-card h-100">
+        <div class="sassy-card h-100">
             <h5 class="text-white fw-bold mb-4"><i class="fas fa-file-contract me-2 text-primary"></i> Document Status</h5>
             <div class="table-responsive">
-                <table class="table table-dark table-hover align-middle mb-0" style="background: transparent;">
+                <table class="table table-sassy align-middle mb-0">
                     <thead>
-                        <tr class="text-muted small text-uppercase">
+                        <tr>
                             <th>Document</th>
                             <th>Expiry Date</th>
-                            <th>Status</th>
+                            <th class="text-end">Status</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td>Insurance</td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-dark rounded p-2 me-3"><i class="fas fa-shield-alt text-white"></i></div>
+                                    <span class="fw-bold">Insurance</span>
+                                </div>
+                            </td>
                             <td>{{ vehicle.insurance_expiry|date:"d M Y"|default:"Not Set" }}</td>
-                            <td>
+                            <td class="text-end">
                                 {% if vehicle.insurance_expiry and vehicle.insurance_expiry < today %}
-                                    <span class="badge bg-danger">Expired</span>
+                                    <span class="badge bg-danger bg-opacity-25 text-danger">Expired</span>
                                 {% else %}
-                                    <span class="badge bg-success">Valid</span>
+                                    <span class="badge bg-success bg-opacity-25 text-success">Valid</span>
                                 {% endif %}
                             </td>
                         </tr>
                         <tr>
-                            <td>PUC (Pollution)</td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-dark rounded p-2 me-3"><i class="fas fa-smog text-white"></i></div>
+                                    <span class="fw-bold">PUC (Pollution)</span>
+                                </div>
+                            </td>
                             <td>{{ vehicle.pollution_expiry|date:"d M Y"|default:"Not Set" }}</td>
-                            <td>
+                            <td class="text-end">
                                 {% if vehicle.pollution_expiry and vehicle.pollution_expiry < today %}
-                                    <span class="badge bg-danger">Expired</span>
+                                    <span class="badge bg-danger bg-opacity-25 text-danger">Expired</span>
                                 {% else %}
-                                    <span class="badge bg-success">Valid</span>
+                                    <span class="badge bg-success bg-opacity-25 text-success">Valid</span>
                                 {% endif %}
                             </td>
                         </tr>
                         <tr>
-                            <td>Fitness Cert</td>
-                            <td>{{ vehicle.fitness_expiry|date:"d M Y"|default:"Not Set" }}</td>
                             <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-dark rounded p-2 me-3"><i class="fas fa-certificate text-white"></i></div>
+                                    <span class="fw-bold">Fitness Cert</span>
+                                </div>
+                            </td>
+                            <td>{{ vehicle.fitness_expiry|date:"d M Y"|default:"Not Set" }}</td>
+                            <td class="text-end">
                                 {% if vehicle.fitness_expiry and vehicle.fitness_expiry < today %}
-                                    <span class="badge bg-danger">Expired</span>
+                                    <span class="badge bg-danger bg-opacity-25 text-danger">Expired</span>
                                 {% else %}
-                                    <span class="badge bg-success">Valid</span>
+                                    <span class="badge bg-success bg-opacity-25 text-success">Valid</span>
                                 {% endif %}
                             </td>
                         </tr>
@@ -171,66 +379,71 @@
         </div>
     </div>
     
+    <!-- EXTERNAL SERVICES -->
     <div class="col-lg-4">
-        <div class="stats-card h-100">
+        <div class="sassy-card h-100">
             <h5 class="text-white fw-bold mb-4">External Services</h5>
-            <div class="alert alert-dark border-secondary d-flex align-items-center mb-4" role="alert">
-                <i class="fas fa-traffic-light fs-2 me-3 text-warning"></i>
-                <div>
-                    <div class="fw-bold text-white">Pending Challans?</div>
-                    <div class="small text-muted">Check official government records.</div>
+            <div class="p-3 rounded-3 mb-4" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-traffic-light fs-1 me-3 text-warning"></i>
+                    <div>
+                        <div class="fw-bold text-white">Pending Challans?</div>
+                        <div class="small text-muted">Check official government records immediately.</div>
+                    </div>
                 </div>
             </div>
-            <a href="{{ challan_link }}" target="_blank" class="btn btn-primary w-100 py-2 fw-bold mb-3">
+            <a href="{{ challan_link }}" target="_blank" class="btn-sassy w-100 py-3 d-block text-center text-decoration-none">
                 <i class="fas fa-external-link-alt me-2"></i> Check e-Challan
             </a>
-            <div class="text-muted small text-center mt-2">
+            <div class="text-muted small text-center mt-3 opacity-75">
                 Redirects to Parivahan Sewa (Govt of India).
             </div>
         </div>
     </div>
 </div>
+
+<!-- UPDATE MODAL -->
 <div class="modal fade" id="updateServiceModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content bg-dark text-white border-secondary">
-        <div class="modal-header border-secondary">
-          <h5 class="modal-title">Update Maintenance Record</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content text-white">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">Update Maintenance Record</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" action="{% url 'update_maintenance' vehicle.id %}">
+                {% csrf_token %}
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label text-muted small text-uppercase fw-bold">Service Type</label>
+                        <select name="service_type" class="form-select" required>
+                            <option value="oil">Oil Change</option>
+                            <option value="tyre">Tyre Change</option>
+                            <option value="general">General Service</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label text-muted small text-uppercase fw-bold">Date Completed</label>
+                        <input type="date" name="service_date" class="form-control" required value="{{ today|date:'Y-m-d' }}">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label text-muted small text-uppercase fw-bold">Odometer Reading</label>
+                        <input type="number" name="service_km" class="form-control" required value="{{ vehicle.current_odometer }}" min="0">
+                        <div class="form-text text-muted small mt-1">Reading when service was performed.</div>
+                    </div>
+
+                    <div class="alert alert-secondary bg-dark border-secondary text-muted small mb-0 d-flex align-items-center">
+                        <i class="fas fa-info-circle me-2"></i> 
+                        <div>This will reset the prediction model based on the new reading.</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-sassy-outline" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-sassy">Update & Reset</button>
+                </div>
+            </form>
         </div>
-        <form method="post" action="{% url 'update_maintenance' vehicle.id %}">
-            {% csrf_token %}
-            <div class="modal-body">
-              
-              <div class="mb-3">
-                  <label class="form-label text-muted">Service Type</label>
-                  <select name="service_type" class="form-select bg-black text-white border-secondary" required>
-                      <option value="oil">Oil Change</option>
-                      <option value="tyre">Tyre Change</option>
-                      <option value="general">General Service</option>
-                  </select>
-              </div>
-              
-              <div class="mb-3">
-                  <label class="form-label text-muted">Date Completed</label>
-                  <input type="date" name="service_date" class="form-control bg-black text-white border-secondary" required value="{{ today|date:'Y-m-d' }}">
-              </div>
-  
-              <div class="mb-3">
-                  <label class="form-label text-muted">Odometer Reading (at time of service)</label>
-                  <input type="number" name="service_km" class="form-control bg-black text-white border-secondary" required value="{{ vehicle.current_odometer }}" min="0">
-                  <div class="form-text text-muted small">Enter the km reading when this service was performed.</div>
-              </div>
-  
-              <p class="small text-muted">
-                  <i class="fas fa-info-circle"></i> This will reset the due date based on the odometer reading you enter.
-              </p>
-            </div>
-            <div class="modal-footer border-secondary">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-              <button type="submit" class="btn btn-primary fw-bold">Update & Reset AI</button>
-            </div>
-        </form>
-      </div>
     </div>
-  </div>
+</div>
 {% endblock %}

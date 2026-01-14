@@ -6,63 +6,59 @@
     /* --- SASSY DASHBOARD THEME --- */
     :root {
         --bg-deep: #000000;
-        --card-bg: rgba(15, 15, 20, 0.6); /* More transparent for glass feel */
-        --border-glass: rgba(255, 255, 255, 0.1);
-        --text-main: #ffffff;
-        --text-muted: #94a3b8;
-        /* Sassy Gradient: Deep Blue -> Electric Blue -> White */
-        --accent-gradient: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #ffffff 100%);
-        --card-hover-border: rgba(59, 130, 246, 0.5);
-        --neon-shadow: 0 0 20px rgba(59, 130, 246, 0.15);
+        --card-bg: #0a0a0a;
+        --glass-border: rgba(255, 255, 255, 0.1);
+        --accent-gradient: linear-gradient(135deg, #06b6d4 0%, #8b5cf6 100%);
+        --text-glow: linear-gradient(90deg, #22d3ee, #c084fc);
     }
 
     /* Override Base Styles */
     body, .main-content {
         background-color: var(--bg-deep) !important;
-        color: var(--text-main);
+        color: white;
         font-family: 'Outfit', sans-serif;
-        overflow-x: hidden; /* Prevent horizontal scroll from animations */
+        overflow-x: hidden;
     }
 
     /* Gradient Text Utility */
-    .text-gradient-sassy {
-        background: linear-gradient(to right, #ffffff, #60a5fa);
+    .gradient-text {
+        background: var(--text-glow);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
+        font-weight: 800;
         display: inline-block;
     }
 
     /* Page Header */
     .page-header h2 { font-weight: 900; letter-spacing: -1px; margin-bottom: 5px; font-size: 2.2rem; }
-    .page-header p { font-size: 0.95rem; color: var(--text-muted); }
+    .page-header p { font-size: 0.95rem; color: #94a3b8; }
 
-    /* --- NEW CARD DESIGN --- */
+    /* --- CARDS --- */
     .stats-card {
         background: var(--card-bg);
-        border: 1px solid var(--border-glass);
-        border-radius: 24px; /* Softer corners */
+        border: 1px solid var(--glass-border);
+        border-radius: 20px;
         padding: 1.8rem;
         position: relative;
         overflow: hidden;
         transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-        backdrop-filter: blur(10px); /* Glass effect */
+        backdrop-filter: blur(10px);
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     }
 
-    /* Hover Effect: Glow & Lift */
     .stats-card:hover {
         transform: translateY(-5px) scale(1.01);
         border-color: #3b82f6;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 30px rgba(59, 130, 246, 0.2); /* Neon Blue Glow */
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 30px rgba(59, 130, 246, 0.2);
     }
 
-    /* Internal "Highlight" Line */
+    /* Glowing Border Effect */
     .stats-card::before {
         content: '';
         position: absolute;
-        top: 0; left: 0; width: 100%; height: 4px;
-        background: linear-gradient(90deg, #1e3a8a, #3b82f6, transparent);
-        opacity: 0.5;
+        top: 0; left: 0; width: 100%; height: 3px;
+        background: var(--accent-gradient);
+        opacity: 0.7;
         transition: 0.4s;
     }
     .stats-card:hover::before {
@@ -71,7 +67,7 @@
         background: linear-gradient(90deg, #ffffff, #3b82f6, #1e3a8a);
     }
 
-    /* Typography inside cards */
+    /* Stats Labels */
     .stats-label h3 { 
         font-size: 0.75rem; 
         text-transform: uppercase; 
@@ -81,33 +77,17 @@
         font-weight: 700; 
     }
     .stats-label h1 { 
-        font-size: 3.5rem; /* Bigger Numbers */
+        font-size: 3.5rem;
         font-weight: 800; 
         margin-bottom: 5px; 
         line-height: 1;
         color: white;
     }
 
-    /* Floating Icons in Background */
-    .bg-icon {
-        position: absolute;
-        right: -10px;
-        bottom: -20px;
-        font-size: 8rem;
-        color: rgba(255, 255, 255, 0.03);
-        transform: rotate(-15deg);
-        transition: 0.4s;
-        z-index: 0;
-    }
-    .stats-card:hover .bg-icon {
-        transform: rotate(0deg) scale(1.1);
-        color: rgba(59, 130, 246, 0.1); /* Blue tint on hover */
-    }
-
     /* --- VEHICLE CARDS --- */
     .vehicle-card {
         padding: 0; 
-        border-radius: 24px;
+        border-radius: 20px;
     }
     .vehicle-img-container {
         height: 180px;
@@ -121,42 +101,49 @@
     .stats-card:hover .vehicle-img-container {
         transform: scale(1.03);
     }
-    /* Gradient overlay for text readability */
     .vehicle-img-container::after {
         content: ''; position: absolute; inset: 0;
         background: linear-gradient(to bottom, transparent 40%, #0a0a0a 100%);
     }
 
-    /* Sassy Buttons */
-    .btn-primary {
-        background: var(--accent-gradient) !important;
-        background-size: 200% auto !important;
-        border: none !important;
-        box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+    /* --- BUTTONS --- */
+    .btn-sassy {
+        background: var(--accent-gradient);
+        border: none;
+        color: white;
         font-weight: 700;
-        color: #000 !important; /* Black text for contrast on bright gradient */
-        transition: 0.5s;
+        padding: 10px 25px;
         border-radius: 12px;
+        transition: 0.3s;
+        box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
     }
-    .btn-primary:hover {
-        background-position: right center !important;
+    .btn-sassy:hover {
+        opacity: 0.95;
         transform: translateY(-2px);
-        box-shadow: 0 0 35px rgba(59, 130, 246, 0.5);
-        color: white !important;
+        color: white;
+        box-shadow: 0 6px 20px rgba(6, 182, 212, 0.5);
     }
 
-    .btn-outline-secondary {
-        border: 1px solid var(--border-glass) !important;
-        color: #e5e7eb !important;
-        background: rgba(255,255,255,0.03);
+    .btn-sassy-outline {
+        background: transparent;
+        border: 1px solid rgba(255,255,255,0.2);
+        color: #cbd5e1;
+        font-weight: 600;
+        padding: 12px;
         border-radius: 12px;
-        transition: all 0.3s ease;
+        transition: 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center; /* Center content for better alignment */
+        width: 100%; /* Ensure full width in grid */
+        text-align: left; /* Align text left inside */
+        justify-content: flex-start; /* Revert back to left align content */
     }
-    .btn-outline-secondary:hover {
-        background: linear-gradient(135deg, #000, #1e3a8a);
-        border-color: #3b82f6 !important;
-        color: white !important;
-        box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+    .btn-sassy-outline:hover {
+        border-color: white;
+        color: white;
+        background: rgba(255,255,255,0.05);
+        box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
     }
 
     /* Activity List Items */
@@ -177,16 +164,16 @@
     /* Dropdown Z-Index Fix */
     .dropdown-menu-dark {
         background-color: #050505;
-        border: 1px solid var(--border-glass);
+        border: 1px solid var(--glass-border);
         box-shadow: 0 20px 50px rgba(0,0,0,0.9);
-        z-index: 1055 !important; /* Ensure it stays on top */
+        z-index: 1055 !important;
     }
     .dropdown-item:hover { 
         background: linear-gradient(90deg, #1e3a8a, transparent); 
         color: white; 
     }
     
-    /* New 3D Logo Badge */
+    /* Logo Badge */
     .card-logo-badge {
         position: absolute;
         right: 25px;
@@ -225,15 +212,52 @@
     .stats-card:hover .card-logo-badge i {
         transform: scale(1.1);
     }
+
+    /* Modal Inputs (Black bg, White text) */
+    .modal-content {
+        background-color: #000000;
+        border: 1px solid rgba(255,255,255,0.2);
+    }
+    .modal-header, .modal-footer {
+        border-color: rgba(255,255,255,0.1);
+        background-color: #050505 !important;
+    }
+    .form-control, .form-select {
+        background-color: #000000 !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        color: #ffffff !important;
+        border-radius: 12px;
+        padding: 10px 15px;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: #8b5cf6 !important;
+        box-shadow: 0 0 10px rgba(139, 92, 246, 0.2) !important;
+        background-color: #000000 !important;
+        color: white !important;
+    }
+    /* Ensure dropdown options are black background with white font */
+    select option {
+        background-color: #000000;
+        color: #ffffff;
+    }
+    
+    /* Animation */
+    .fade-in-up {
+        animation: fadeInUp 0.8s ease-out forwards;
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    @keyframes fadeInUp {
+        to { opacity: 1; transform: translateY(0); }
+    }
 </style>
 
-<!-- HEADER SECTION (Z-Index Fixed here) -->
+<!-- HEADER SECTION -->
 <div class="d-flex justify-content-between align-items-end mb-5 fade-in-up" 
      style="animation-duration: 0.6s; position: relative; z-index: 1050;">
     <div class="page-header">
         <h2 class="text-white">My Garage</h2>
-        <!-- UPDATED: Text Color White -->
-        <p class="text-white">Monitor your vehicles, trips, and fuel consumption.</p>
+        <p class="text-white-50">Monitor your vehicles, trips, and fuel consumption.</p>
     </div>
     
     <div class="d-flex gap-3 align-items-center">
@@ -278,13 +302,17 @@
         </div>
 
         <!-- ADD VEHICLE BUTTON -->
-        <a href="{% url 'add_vehicle' %}" class="btn btn-primary d-flex align-items-center gap-2 px-4 rounded-pill" style="height: 45px;">
+        <a href="{% url 'add_vehicle' %}" class="btn-sassy d-flex align-items-center gap-2 px-4 rounded-pill text-decoration-none" style="height: 45px;">
             <i class="fas fa-plus"></i> <span class="d-none d-md-inline">Add Vehicle</span>
         </a>
         
         <!-- PROFILE AVATAR -->
         <a href="{% url 'profile' %}" class="btn btn-dark border border-secondary rounded-circle d-flex align-items-center justify-content-center ms-2 text-decoration-none shadow-sm" style="width: 45px; height: 45px; background-color: #000; transition: 0.3s;">
-            <span class="fw-bold text-gradient-sassy">{{ user.username|slice:":1"|upper }}</span>
+            {% if user.profile_photo %}
+            <img src="{{ user.profile_photo.url }}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+            {% else %}
+            <span class="gradient-text">{{ user.username|slice:":1"|upper }}</span>
+            {% endif %}
         </a>
     </div>
 </div>
@@ -296,13 +324,11 @@
         <div class="stats-card h-100 position-relative overflow-hidden fade-in-up" style="animation-delay: 0.1s;">
             <div class="stats-label position-relative z-1">
                 <h3>Active vehicles</h3>
-                <h1 class="text-gradient-sassy">{{ vehicle_count }}</h1>
-                <!-- UPDATED: Text Color White -->
+                <h1 class="gradient-text">{{ vehicle_count }}</h1>
                 <p class="text-white small">
                     {% if vehicle_count == 0 %}Start by adding a vehicle.{% else %}Vehicles in garage.{% endif %}
                 </p>
             </div>
-            <!-- REPLACED OLD ICON WITH SASSY LOGO BADGE -->
             <div class="card-logo-badge">
                 <i class="fas fa-car-side"></i>
             </div>
@@ -314,13 +340,11 @@
         <div class="stats-card h-100 position-relative overflow-hidden fade-in-up" style="animation-delay: 0.2s;">
             <div class="stats-label position-relative z-1">
                 <h3>Fuel Used (Month)</h3>
-                <h1 class="text-gradient-sassy">{{ total_fuel }} <span class="fs-4 text-white">L</span></h1>
-                <!-- UPDATED: Text Color White -->
+                <h1 class="gradient-text">{{ total_fuel }} <span class="fs-4 text-white">L</span></h1>
                 <p class="text-white small">
                     {% if total_fuel == 0 %}No logs recorded yet.{% else %}Consumed this month.{% endif %}
                 </p>
             </div>
-            <!-- REPLACED OLD ICON WITH SASSY LOGO BADGE -->
             <div class="card-logo-badge">
                 <i class="fas fa-gas-pump"></i>
             </div>
@@ -332,13 +356,11 @@
         <div class="stats-card h-100 position-relative overflow-hidden fade-in-up" style="animation-delay: 0.3s;">
             <div class="stats-label position-relative z-1">
                 <h3>Total Distance</h3>
-                <h1 class="text-gradient-sassy">{{ total_distance }} <span class="fs-4 text-white">km</span></h1>
-                <!-- UPDATED: Text Color White -->
+                <h1 class="gradient-text">{{ total_distance }} <span class="fs-4 text-white">km</span></h1>
                 <p class="text-white small">
                     {% if total_distance == 0 %}Start a trip to see data.{% else %}Lifetime distance logged.{% endif %}
                 </p>
             </div>
-            <!-- REPLACED OLD ICON WITH SASSY LOGO BADGE -->
             <div class="card-logo-badge">
                 <i class="fas fa-route"></i>
             </div>
@@ -352,7 +374,7 @@
     <!-- LEFT COLUMN: GARAGE -->
     <div class="col-lg-8">
         <div class="d-flex justify-content-between align-items-center mb-4 fade-in-up" style="animation-delay: 0.4s;">
-            <div class="text-uppercase small fw-bold text-muted letter-spacing-1"><i class="fas fa-warehouse me-2 text-primary"></i> Garage Overview</div>
+            <div class="text-uppercase small fw-bold text-muted letter-spacing-1"><i class="fas fa-warehouse me-2 text-info"></i> Garage Overview</div>
         </div>
 
         <div class="row g-4">
@@ -382,7 +404,7 @@
                                     </div>
 
                                     <div class="text-muted small" style="font-size: 0.8rem; color: #cbd5e1 !important;">
-                                        <i class="fas fa-calendar-alt me-1 text-primary"></i> 
+                                        <i class="fas fa-calendar-alt me-1 text-info"></i> 
                                         Reg: <span class="text-white">{{ v.purchase_year }}</span>
                                     </div>
                                 </div>
@@ -398,8 +420,8 @@
                             </div>
                             
                             <div class="d-grid gap-2">
-                                <a href="{% url 'log_fuel' v.id %}" class="btn btn-outline-secondary btn-sm fw-bold text-white"><i class="fas fa-gas-pump me-2 text-success"></i> Log Fuel</a>
-                                <a href="{% url 'vehicle_stats' v.id %}" class="btn btn-outline-secondary btn-sm fw-bold text-white"><i class="fas fa-chart-line me-2 text-info"></i> View Stats</a>
+                                <a href="{% url 'log_fuel' v.id %}" class="btn-sassy-outline text-white"><i class="fas fa-gas-pump me-2 text-success"></i> Log Fuel</a>
+                                <a href="{% url 'vehicle_stats' v.id %}" class="btn-sassy-outline text-white"><i class="fas fa-chart-line me-2 text-info"></i> View Stats</a>
                             </div>
                         </div>
                     </div>
@@ -414,7 +436,7 @@
                         </div>
                         <h5 class="text-white fw-bold">Garage is Empty</h5>
                         <p class="text-muted mb-4" style="color: #e2e8f0 !important;">Add your first vehicle to start tracking costs.</p>
-                        <a href="{% url 'add_vehicle' %}" class="btn btn-primary px-5 py-2 rounded-pill">Add Vehicle</a>
+                        <a href="{% url 'add_vehicle' %}" class="btn-sassy px-5 py-2 rounded-pill text-decoration-none">Add Vehicle</a>
                     </div>
                  </div>
             {% endif %}
@@ -422,8 +444,8 @@
             <!-- RECOMMENDATION ENGINE BUTTON -->
             <div class="col-12 fade-in-up" style="animation-delay: 0.6s;">
                 <div class="d-grid">
-                    <a href="{% url 'recommend_car' %}" class="btn btn-outline-secondary d-flex align-items-center justify-content-center gap-3 py-3" style="border-style: dashed; border-width: 2px;">
-                        <i class="fas fa-search-plus fs-4 text-primary"></i>
+                    <a href="{% url 'recommend_car' %}" class="btn-sassy-outline d-flex align-items-center justify-content-center gap-3 py-3" style="border-style: dashed; border-width: 2px;">
+                        <i class="fas fa-search-plus fs-4 text-info"></i>
                         <span class="text-white fw-bold">Looking for a new ride? Try our Recommendation Engine</span>
                     </a>
                 </div>
@@ -437,17 +459,17 @@
             <h5 class="fw-bold mb-4 text-white border-bottom border-secondary pb-3 text-uppercase small letter-spacing-1">Quick Actions</h5>
             
             <div class="d-grid gap-3 mb-5">
-                <a href="{% url 'log_trip' %}" class="btn btn-primary text-start px-4 text-white py-3 rounded-3 position-relative overflow-hidden group">
+                <a href="{% url 'log_trip' %}" class="btn-sassy text-start px-4 text-white py-3 rounded-3 position-relative overflow-hidden text-decoration-none">
                     <span class="position-relative z-1"><i class="fas fa-play-circle me-3 fs-5"></i> Start Quick Trip</span>
                     <i class="fas fa-arrow-right position-absolute end-0 me-3 opacity-50"></i>
                 </a>
-                <a href="{% url 'trip_calculator' %}" class="btn btn-outline-secondary text-start px-3 text-light py-3 rounded-3">
+                <a href="{% url 'trip_calculator' %}" class="btn-sassy-outline text-start px-3 text-light py-3 rounded-3">
                     <i class="fas fa-calculator me-3 text-info"></i> Estimate Trip Cost
                 </a>
-                <button type="button" class="btn btn-outline-secondary text-start px-3 text-light py-3 rounded-3" data-bs-toggle="modal" data-bs-target="#valuationModal">
+                <button type="button" class="btn-sassy-outline text-start px-3 text-light py-3 rounded-3" data-bs-toggle="modal" data-bs-target="#valuationModal">
                     <i class="fas fa-sack-dollar me-3 text-success"></i> Estimate Asset Value
                 </button>
-                <a href="{% url 'recommend_car' %}" class="btn btn-outline-secondary text-start px-3 text-light py-3 rounded-3">
+                <a href="{% url 'recommend_car' %}" class="btn-sassy-outline text-start px-3 text-light py-3 rounded-3">
                     <i class="fas fa-car-side me-3 text-warning"></i> Find New Car
                 </a>
             </div>
@@ -464,7 +486,6 @@
                     </div>
                     <div class="ps-2">
                         <div class="text-white small fw-bold">No recent trips</div>
-                        <!-- UPDATED: Text Color White -->
                         <div class="text-white small" style="font-size: 0.8rem; color: #cbd5e1 !important;">Your timeline is empty.</div>
                     </div>
                 </div>
@@ -477,7 +498,6 @@
                     </div>
                     <div class="ps-2">
                         <div class="text-white small fw-bold">Maintenance</div>
-                        <!-- UPDATED: Text Color White -->
                         <div class="text-white small" style="font-size: 0.8rem; color: #cbd5e1 !important;">No service history available.</div>
                     </div>
                 </div>
@@ -486,7 +506,7 @@
     </div>
 </div>
 
-<!-- VALUATION MODAL (Black/Glass Theme) -->
+<!-- VALUATION MODAL (Updated Sassy Style) -->
 <div class="modal fade" id="valuationModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content bg-black border border-secondary text-white shadow-lg" style="border-radius: 20px; overflow: hidden; box-shadow: 0 0 50px rgba(0,0,0,0.9);">
@@ -497,38 +517,81 @@
             <form method="post" action="{% url 'calculate_value' %}">
                 {% csrf_token %}
                 <div class="modal-body p-4">
-                    <p class="text-muted small mb-4" style="color: #cbd5e1 !important;">Calculate real-time market value based on age & condition.</p>
-                    <!-- Form Fields -->
+                    <p class="text-muted small mb-4" style="color: #cbd5e1 !important;">Calculate real-time market value based on detailed condition.</p>
+                    
+                    <!-- Vehicle Select -->
                     <div class="mb-3">
-                        <label class="small text-muted mb-1" style="color: #94a3b8 !important;">Vehicle</label>
+                        <label class="small text-muted mb-1" style="color: #94a3b8 !important;">Select Vehicle</label>
                         <select name="vehicle_id" class="form-select bg-black text-white border-secondary">
                             {% for car in vehicles %}
                                 <option value="{{ car.id }}">{{ car.make }} {{ car.model_name }}</option>
                             {% endfor %}
                         </select>
                     </div>
-                    <!-- Other Dropdowns (Simplified for brevity, ensuring dark theme) -->
+
+                    <!-- Ownership Select -->
                     <div class="mb-3">
-                        <label class="small text-muted mb-1" style="color: #94a3b8 !important;">Condition</label>
+                        <label class="small text-muted mb-1" style="color: #94a3b8 !important;">Ownership History</label>
+                        <select name="ownership" class="form-select bg-black text-white border-secondary">
+                            <option value="1.0">1st Owner (Direct)</option>
+                            <option value="0.9">2nd Owner</option>
+                            <option value="0.8">3rd Owner</option>
+                            <option value="0.7">4th Owner</option>
+                            <option value="0.6">5th Owner</option>
+                        </select>
+                    </div>
+
+                    <!-- Condition & Maintenance Grid -->
+                    <div class="row g-2">
+                         <!-- Tyre Condition -->
+                        <div class="col-12 mb-2">
+                             <label class="small text-muted mb-1" style="color: #94a3b8 !important;">Tyre Condition</label>
+                             <div class="btn-group w-100" role="group">
+                                <input type="radio" class="btn-check" name="tyres" id="t1" value="1.0" checked>
+                                <label class="btn btn-outline-secondary btn-sm" for="t1">Good</label>
+            
+                                <input type="radio" class="btn-check" name="tyres" id="t2" value="0.95">
+                                <label class="btn btn-outline-secondary btn-sm" for="t2">Avg</label>
+            
+                                <input type="radio" class="btn-check" name="tyres" id="t3" value="0.90">
+                                <label class="btn btn-outline-secondary btn-sm" for="t3">Rough</label>
+                            </div>
+                        </div>
+
+                         <!-- Maintenance History -->
+                         <div class="col-12 mb-2">
+                            <label class="small text-muted mb-1" style="color: #94a3b8 !important;">Service History</label>
+                            <div class="btn-group w-100" role="group">
+                               <input type="radio" class="btn-check" name="maintenance" id="m1" value="1.05" checked>
+                               <label class="btn btn-outline-secondary btn-sm" for="m1">Timely</label>
+           
+                               <input type="radio" class="btn-check" name="maintenance" id="m2" value="1.0">
+                               <label class="btn btn-outline-secondary btn-sm" for="m2">Avg</label>
+           
+                               <input type="radio" class="btn-check" name="maintenance" id="m3" value="0.85">
+                               <label class="btn btn-outline-secondary btn-sm" for="m3">Poor</label>
+                           </div>
+                       </div>
+                    </div>
+
+                    <!-- Overall Condition -->
+                    <div class="mb-3 mt-2">
+                        <label class="small text-muted mb-1" style="color: #94a3b8 !important;">Overall Condition</label>
                         <div class="btn-group w-100" role="group">
                             <input type="radio" class="btn-check" name="condition" id="c1" value="1.0" checked>
-                            <label class="btn btn-outline-secondary btn-sm" for="c1">Good</label>
+                            <label class="btn btn-outline-secondary btn-sm" for="c1">Excellent</label>
+
                             <input type="radio" class="btn-check" name="condition" id="c2" value="0.9">
-                            <label class="btn btn-outline-secondary btn-sm" for="c2">Avg</label>
+                            <label class="btn btn-outline-secondary btn-sm" for="c2">Good</label>
+
                             <input type="radio" class="btn-check" name="condition" id="c3" value="0.75">
                             <label class="btn btn-outline-secondary btn-sm" for="c3">Rough</label>
                         </div>
                     </div>
-                    <!-- Hidden inputs or other factors can go here -->
                 </div>
-                <!-- UPDATED MODAL FOOTER WITH SASSY BUTTON -->
+                <!-- MODAL FOOTER -->
                 <div class="modal-footer border-secondary pt-4 pb-4 px-4 bg-dark">
-                    <button type="submit" class="btn w-100 fw-bold py-3 text-white" 
-                            style="background: linear-gradient(135deg, #2563eb 0%, #06b6d4 100%); 
-                                   border: none; 
-                                   border-radius: 12px; 
-                                   box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4); 
-                                   transition: all 0.3s ease;">
+                    <button type="submit" class="btn-sassy w-100">
                         <i class="fas fa-calculator me-2"></i> Calculate Exact Value
                     </button>
                 </div>
@@ -585,26 +648,17 @@
                 dropdownMenu.classList.remove('show');
             }
         });
+        
+        // Enforce dark theme selects
+        const selects = document.querySelectorAll('select');
+        selects.forEach(select => {
+            select.style.backgroundImage = `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e")`;
+            select.style.backgroundRepeat = 'no-repeat';
+            select.style.backgroundPosition = 'right 0.75rem center';
+            select.style.backgroundSize = '16px 12px';
+            select.style.appearance = 'none'; 
+        });
     });
 </script>
-
-<!-- Keyframe Animations for Entrance -->
-<style>
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translate3d(0, 30px, 0);
-    }
-    to {
-        opacity: 1;
-        transform: translate3d(0, 0, 0);
-    }
-}
-.fade-in-up {
-    animation-name: fadeInUp;
-    animation-duration: 0.8s;
-    animation-fill-mode: both;
-}
-</style>
 
 {% endblock %}

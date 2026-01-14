@@ -1,57 +1,223 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
-<div class="row mb-5">
-    <div class="col-12">
-        <h2 class="text-white fw-bold">Fleet Analytics</h2>
-        <p class="text-muted">Advanced tools to optimize your vehicle costs and efficiency.</p>
-    </div>
-</div>
-
-<div class="row g-4">
-    <div class="col-md-4">
-        <div class="stats-card h-100 p-4 hover-effect text-center">
-            <div class="rounded-circle bg-warning bg-opacity-10 d-inline-flex p-4 mb-4">
-                <i class="fas fa-bullseye fa-3x text-warning"></i>
-            </div>
-            <h4 class="text-white fw-bold mb-3">Set Targets</h4>
-            <p class="text-muted mb-4">Define mileage goals (km/L) and cost limits (₹/km) for each vehicle to track performance.</p>
-            <a href="{% url 'manage_fleet_targets' %}" class="btn btn-outline-warning w-100 py-2">Configure Strategy</a>
-        </div>
-    </div>
-
-    <div class="col-md-4">
-        <div class="stats-card h-100 p-4 hover-effect text-center">
-            <div class="rounded-circle bg-info bg-opacity-10 d-inline-flex p-4 mb-4">
-                <i class="fas fa-chart-pie fa-3x text-info"></i>
-            </div>
-            <h4 class="text-white fw-bold mb-3">TCO Analysis</h4>
-            <p class="text-muted mb-4">View the "Total Cost of Ownership" breakdown to see exactly where your money goes.</p>
-            <a href="{% url 'tco_report' %}" class="btn btn-outline-info w-100 py-2">View Financials</a>
-        </div>
-    </div>
-
-    <div class="col-md-4">
-        <div class="stats-card h-100 p-4 hover-effect text-center">
-            <div class="rounded-circle bg-success bg-opacity-10 d-inline-flex p-4 mb-4">
-                <i class="fas fa-magic fa-3x text-success"></i>
-            </div>
-            <h4 class="text-white fw-bold mb-3">"What If" Engine</h4>
-            <p class="text-muted mb-4">Simulate savings: "How much would I save if every car actually met its target?"</p>
-            <a href="{% url 'what_if_analysis' %}" class="btn btn-outline-success w-100 py-2">Run Simulation</a>
-        </div>
-    </div>
-</div>
-
 <style>
-    .hover-effect {
-        transition: transform 0.2s ease, border-color 0.2s ease;
-        border: 1px solid #333;
+    /* --- SASSY GRADIENT THEME (Black/Blue/White) --- */
+    :root {
+        --bg-deep: #000000;
+        --card-bg: #0a0a0a;
+        --glass-border: rgba(255, 255, 255, 0.1);
+        --accent-gradient: linear-gradient(135deg, #06b6d4 0%, #8b5cf6 100%);
+        --text-glow: linear-gradient(90deg, #22d3ee, #c084fc);
+        --hover-glow: 0 0 20px rgba(59, 130, 246, 0.3);
     }
-    .hover-effect:hover {
-        transform: translateY(-5px);
-        border-color: #555;
-        background-color: #1a1a1a;
+
+    body, .main-content {
+        background-color: var(--bg-deep) !important;
+        color: white;
+        font-family: 'Outfit', sans-serif;
+    }
+
+    /* --- PAGE HEADER --- */
+    .page-header h2 {
+        font-weight: 800;
+        letter-spacing: -1px;
+        background: var(--text-glow);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    /* --- CARDS --- */
+    .sassy-card {
+        background: var(--card-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 20px;
+        padding: 2.5rem;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    /* Hover Effect */
+    .sassy-card:hover {
+        transform: translateY(-8px);
+        border-color: #3b82f6;
+        box-shadow: var(--hover-glow);
+    }
+
+    /* Icon Container with Gradient Border */
+    .icon-box {
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+        background: black; /* Inner circle */
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Gradient Border Trick */
+    .icon-box::before {
+        content: "";
+        position: absolute;
+        inset: -3px; /* Border width */
+        border-radius: 50%;
+        background: var(--accent-gradient);
+        z-index: -1;
+    }
+
+    .icon-box i {
+        font-size: 2.5rem;
+        background: var(--text-glow);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    /* Typography */
+    .card-title {
+        font-weight: 700;
+        font-size: 1.5rem;
+        color: white;
+        margin-bottom: 0.8rem;
+    }
+
+    .card-desc {
+        color: #94a3b8; /* Slate-400 */
+        font-size: 0.95rem;
+        line-height: 1.5;
+        margin-bottom: 2rem;
+        flex-grow: 1; /* Pushes button down */
+    }
+
+    /* --- BUTTONS --- */
+    .btn-sassy-outline {
+        background: transparent;
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 12px 30px;
+        border-radius: 50px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        transition: 0.3s;
+        width: 100%;
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+    }
+
+    /* Button Gradient Hover */
+    .btn-sassy-outline::before {
+        content: "";
+        position: absolute;
+        top: 0; left: 0; width: 0%; height: 100%;
+        background: var(--accent-gradient);
+        transition: 0.3s;
+        z-index: -1;
+    }
+
+    .btn-sassy-outline:hover {
+        border-color: transparent;
+        color: white;
+        box-shadow: 0 5px 15px rgba(6, 182, 212, 0.4);
+    }
+    
+    .btn-sassy-outline:hover::before {
+        width: 100%;
+    }
+
+    /* Color Specific Variants */
+    .btn-target:hover { box-shadow: 0 5px 15px rgba(234, 179, 8, 0.4); }
+    .btn-target::before { background: linear-gradient(135deg, #facc15 0%, #ca8a04 100%); }
+
+    .btn-tco:hover { box-shadow: 0 5px 15px rgba(6, 182, 212, 0.4); }
+    .btn-tco::before { background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%); }
+
+    .btn-whatif:hover { box-shadow: 0 5px 15px rgba(34, 197, 94, 0.4); }
+    .btn-whatif::before { background: linear-gradient(135deg, #4ade80 0%, #16a34a 100%); }
+
+    /* Animation */
+    .fade-in-up {
+        animation: fadeInUp 0.8s ease-out forwards;
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    
+    @keyframes fadeInUp {
+        to { opacity: 1; transform: translateY(0); }
     }
 </style>
+
+<div class="container py-4">
+    <!-- Header -->
+    <div class="row mb-5 fade-in-up">
+        <div class="col-12 text-center text-md-start">
+            <div class="page-header">
+                <h2>Fleet Analytics Hub</h2>
+                <p class="text-white-50 mt-2 fs-5">Power up your decision making with data-driven insights.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cards Grid -->
+    <div class="row g-4">
+        
+        <!-- 1. SET TARGETS -->
+        <div class="col-md-4 fade-in-up" style="animation-delay: 0.1s;">
+            <div class="sassy-card">
+                <div class="icon-box">
+                    <i class="fas fa-crosshairs"></i>
+                </div>
+                <h4 class="card-title">Set Targets</h4>
+                <p class="card-desc">
+                    Define critical KPI benchmarks for your fleet. Set mileage goals (km/L) and cost thresholds (₹/km) to monitor efficiency in real-time.
+                </p>
+                <a href="{% url 'manage_fleet_targets' %}" class="btn-sassy-outline btn-target">
+                    Configure Strategy <i class="fas fa-arrow-right ms-2"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- 2. TCO ANALYSIS -->
+        <div class="col-md-4 fade-in-up" style="animation-delay: 0.2s;">
+            <div class="sassy-card">
+                <div class="icon-box">
+                    <i class="fas fa-chart-pie"></i>
+                </div>
+                <h4 class="card-title">TCO Analysis</h4>
+                <p class="card-desc">
+                    Uncover the true "Total Cost of Ownership". We break down fuel, service, and hidden expenses to show exactly where every rupee goes.
+                </p>
+                <a href="{% url 'tco_report' %}" class="btn-sassy-outline btn-tco">
+                    View Financials <i class="fas fa-chart-bar ms-2"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- 3. WHAT-IF ENGINE -->
+        <div class="col-md-4 fade-in-up" style="animation-delay: 0.3s;">
+            <div class="sassy-card">
+                <div class="icon-box">
+                    <i class="fas fa-magic"></i>
+                </div>
+                <h4 class="card-title">"What If" Engine</h4>
+                <p class="card-desc">
+                    Simulate future scenarios. "How much would I save if every driver achieved 10% better mileage?" Run the numbers instantly.
+                </p>
+                <a href="{% url 'what_if_analysis' %}" class="btn-sassy-outline btn-whatif">
+                    Run Simulation <i class="fas fa-flask ms-2"></i>
+                </a>
+            </div>
+        </div>
+
+    </div>
+</div>
 {% endblock %}
