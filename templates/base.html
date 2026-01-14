@@ -23,8 +23,8 @@
             --border-glass: rgba(255, 255, 255, 0.15);
             --text-main: #ffffff;
             
-            /* UPDATED: Made text-muted much brighter for better visibility */
-            --text-muted: #e5e5e5; 
+            /* UPDATED: Ensuring all text is pure white or very close to it */
+            --text-muted: #f0f0f0; 
             
             /* THE SASSY GRADIENT (Matches Dashboard Buttons) */
             --accent-gradient: linear-gradient(120deg, #1e3a8a 0%, #3b82f6 50%, #ffffff 150%);
@@ -38,6 +38,63 @@
             overflow-x: hidden;
         }
 
+        /* FORCE WHITE TEXT GLOBALLY */
+        h1, h2, h3, h4, h5, h6, p, span, div, li, td, th, label {
+            color: var(--text-main) !important;
+        }
+
+        /* Override Bootstrap's text-muted to be readable on black */
+        .text-muted {
+            color: var(--text-muted) !important;
+        }
+
+        /* Fix Bootstrap Cards to match dark theme */
+        .card {
+            background-color: #111111; /* Very dark grey, almost black */
+            border: 1px solid var(--border-glass);
+            color: var(--text-main);
+        }
+        
+        .card-header, .card-footer {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-color: var(--border-glass);
+            color: var(--text-main);
+        }
+
+        /* Fix Form Inputs */
+        .form-control, .form-select {
+            background-color: #1a1a1a;
+            border-color: var(--border-glass);
+            color: #ffffff !important;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            background-color: #222222;
+            color: #ffffff !important;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 0.25rem rgba(59, 130, 246, 0.25);
+        }
+
+        .form-control::placeholder {
+            color: #aaaaaa;
+        }
+
+        /* Fix Table Text */
+        .table {
+            color: var(--text-main) !important;
+            --bs-table-color: var(--text-main);
+            --bs-table-bg: transparent;
+        }
+        
+        /* Links */
+        a {
+            color: #60a5fa; /* Light blue for links so they stand out but look good on black */
+            text-decoration: none;
+        }
+        a:hover {
+            color: #ffffff;
+        }
+
         /* --- SIDEBAR STYLING --- */
         .sidebar {
             position: fixed;
@@ -45,8 +102,8 @@
             bottom: 0;
             left: 0;
             z-index: 100;
-            padding: 15px 0; /* Reduced top/bottom padding */
-            width: 260px; /* Fixed width */
+            padding: 10px 0;
+            width: 260px;
             background-color: var(--sidebar-bg);
             border-right: 1px solid var(--border-glass);
             display: flex;
@@ -56,27 +113,25 @@
 
         /* Brand Logo */
         .brand-logo {
-            font-size: 1.8rem;
+            font-size: 1.6rem;
             font-weight: 800;
-            padding: 5px 20px 20px; /* Reduced padding */
+            padding: 5px 20px 15px;
             display: flex;
             align-items: center;
             gap: 10px;
             letter-spacing: -0.5px;
-            flex-shrink: 0; /* Prevent shrinking */
+            flex-shrink: 0;
         }
         
         .brand-logo i {
-            /* Gradient Icon */
             background: linear-gradient(to bottom, #ffffff, #3b82f6);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            font-size: 1.8rem;
+            font-size: 1.6rem;
             filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.6));
         }
 
         .brand-text {
-            /* Sassy Gradient Text */
             background: linear-gradient(135deg, #ffffff 0%, #3b82f6 60%, #1e3a8a 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -86,8 +141,7 @@
         /* Nav Links */
         .nav-column {
             flex-grow: 1;
-            padding: 0 12px; /* Reduced side padding */
-            /* Removed overflow-y: auto to disable internal scrollbar */
+            padding: 0 10px;
             display: flex;
             flex-direction: column;
         }
@@ -95,15 +149,14 @@
         .nav-link {
             color: var(--text-muted) !important;
             font-weight: 500;
-            /* UPDATED: Compact spacing to fit more items */
-            padding: 10px 15px !important; 
-            border-radius: 12px;
-            margin-bottom: 4px; /* Reduced margin */
+            padding: 8px 12px !important;
+            border-radius: 10px;
+            margin-bottom: 2px;
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
-            gap: 12px;
-            font-size: 0.9rem; /* Slightly smaller font */
+            gap: 10px;
+            font-size: 0.85rem;
             border: 1px solid transparent;
         }
         
@@ -111,7 +164,8 @@
             width: 20px;
             text-align: center;
             transition: 0.3s;
-            font-size: 1rem;
+            font-size: 0.95rem;
+            color: var(--text-muted); /* Ensure icons are also light */
         }
 
         /* Hover State */
@@ -122,15 +176,15 @@
             transform: translateX(5px);
         }
         .nav-link:hover i {
-            color: #60a5fa;
+            color: #60a5fa !important;
             text-shadow: 0 0 10px rgba(96, 165, 250, 0.6);
         }
 
-        /* Active State - THE SASSY GRADIENT */
+        /* Active State */
         .nav-link.active {
             background: var(--accent-gradient) !important;
             background-size: 200% auto !important;
-            color: black !important; /* High contrast text */
+            color: black !important; /* Keep active link text black for contrast against bright gradient */
             font-weight: 700;
             box-shadow: var(--neon-glow);
             border: none;
@@ -141,26 +195,26 @@
 
         /* Admin Controls Header */
         .small.text-uppercase {
-            color: #94a3b8 !important; /* Lighter gray */
-            font-size: 0.7rem;
-            letter-spacing: 1.5px;
-            margin-top: 15px;
-            margin-bottom: 5px;
-            padding-left: 15px;
+            color: #94a3b8 !important;
+            font-size: 0.65rem;
+            letter-spacing: 1.2px;
+            margin-top: 10px;
+            margin-bottom: 4px;
+            padding-left: 12px;
             font-weight: 800;
         }
 
         /* Sidebar Footer */
         .sidebar-footer {
-            padding: 15px 15px;
+            padding: 10px 15px;
             border-top: 1px solid var(--border-glass);
-            background: rgba(0,0,0,0.5); /* Darker bottom area */
-            flex-shrink: 0; /* Prevent footer from shrinking */
+            background: rgba(0,0,0,0.5);
+            flex-shrink: 0;
         }
 
         /* Main Content Area */
         .main-content {
-            margin-left: 260px; /* Matches sidebar width */
+            margin-left: 260px;
             padding: 40px;
             min-height: 100vh;
         }
@@ -179,6 +233,7 @@
             border-radius: 16px;
             box-shadow: 0 20px 50px rgba(0,0,0,0.9);
             overflow: hidden;
+            color: white;
         }
         
         .chat-header {
@@ -192,7 +247,7 @@
 
     <!-- SIDEBAR -->
     <nav class="sidebar">
-        <!-- BRAND LOGO WITH SASSY GRADIENT TEXT -->
+        <!-- BRAND LOGO -->
         <div class="brand-logo">
             <i class="fas fa-bolt"></i> <span class="brand-text">FuelPulse</span>
         </div>

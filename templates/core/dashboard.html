@@ -185,6 +185,46 @@
         background: linear-gradient(90deg, #1e3a8a, transparent); 
         color: white; 
     }
+    
+    /* New 3D Logo Badge */
+    .card-logo-badge {
+        position: absolute;
+        right: 25px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: linear-gradient(145deg, #000000, #111111);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 
+            5px 5px 15px rgba(0,0,0,0.5), 
+            -1px -1px 10px rgba(255,255,255,0.05),
+            inset 0 0 20px rgba(0,0,0,0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.4s ease;
+        z-index: 2;
+    }
+
+    .card-logo-badge i {
+        font-size: 2.5rem;
+        background: linear-gradient(180deg, #ffffff 0%, #3b82f6 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        filter: drop-shadow(0 0 5px rgba(59, 130, 246, 0.5));
+        transition: transform 0.4s ease;
+    }
+
+    .stats-card:hover .card-logo-badge {
+        border-color: #3b82f6;
+        box-shadow: 0 0 25px rgba(59, 130, 246, 0.3);
+        transform: translateY(-50%) scale(1.1);
+    }
+    .stats-card:hover .card-logo-badge i {
+        transform: scale(1.1);
+    }
 </style>
 
 <!-- HEADER SECTION (Z-Index Fixed here) -->
@@ -262,7 +302,10 @@
                     {% if vehicle_count == 0 %}Start by adding a vehicle.{% else %}Vehicles in garage.{% endif %}
                 </p>
             </div>
-            <i class="fas fa-car bg-icon"></i>
+            <!-- REPLACED OLD ICON WITH SASSY LOGO BADGE -->
+            <div class="card-logo-badge">
+                <i class="fas fa-car-side"></i>
+            </div>
         </div>
     </div>
     
@@ -271,13 +314,16 @@
         <div class="stats-card h-100 position-relative overflow-hidden fade-in-up" style="animation-delay: 0.2s;">
             <div class="stats-label position-relative z-1">
                 <h3>Fuel Used (Month)</h3>
-                <h1 class="text-gradient-sassy">{{ total_fuel }} <span class="fs-4 text-muted">L</span></h1>
+                <h1 class="text-gradient-sassy">{{ total_fuel }} <span class="fs-4 text-white">L</span></h1>
                 <!-- UPDATED: Text Color White -->
                 <p class="text-white small">
                     {% if total_fuel == 0 %}No logs recorded yet.{% else %}Consumed this month.{% endif %}
                 </p>
             </div>
-            <i class="fas fa-gas-pump bg-icon"></i>
+            <!-- REPLACED OLD ICON WITH SASSY LOGO BADGE -->
+            <div class="card-logo-badge">
+                <i class="fas fa-gas-pump"></i>
+            </div>
         </div>
     </div>
     
@@ -286,13 +332,16 @@
         <div class="stats-card h-100 position-relative overflow-hidden fade-in-up" style="animation-delay: 0.3s;">
             <div class="stats-label position-relative z-1">
                 <h3>Total Distance</h3>
-                <h1 class="text-gradient-sassy">{{ total_distance }} <span class="fs-4 text-muted">km</span></h1>
+                <h1 class="text-gradient-sassy">{{ total_distance }} <span class="fs-4 text-white">km</span></h1>
                 <!-- UPDATED: Text Color White -->
                 <p class="text-white small">
                     {% if total_distance == 0 %}Start a trip to see data.{% else %}Lifetime distance logged.{% endif %}
                 </p>
             </div>
-            <i class="fas fa-road bg-icon"></i>
+            <!-- REPLACED OLD ICON WITH SASSY LOGO BADGE -->
+            <div class="card-logo-badge">
+                <i class="fas fa-route"></i>
+            </div>
         </div>
     </div>
 </div>
@@ -324,7 +373,7 @@
                                     <h5 class="fw-bold text-white mb-1">{{ v.make }} {{ v.model_name }}</h5>
                                     
                                     <div class="d-flex align-items-center gap-2 mb-2">
-                                        <small class="text-muted border border-secondary px-2 rounded-pill bg-black" style="font-size: 0.7rem; letter-spacing: 0.5px;">{{ v.license_plate }}</small>
+                                        <small class="text-white border border-secondary px-2 rounded-pill bg-black" style="font-size: 0.7rem; letter-spacing: 0.5px;">{{ v.license_plate }}</small>
                                         {% if 'Two' in v.category|stringformat:'s' %}
                                             <i class="fas fa-motorcycle text-secondary small"></i>
                                         {% else %}
@@ -332,7 +381,7 @@
                                         {% endif %}
                                     </div>
 
-                                    <div class="text-muted small" style="font-size: 0.8rem;">
+                                    <div class="text-muted small" style="font-size: 0.8rem; color: #cbd5e1 !important;">
                                         <i class="fas fa-calendar-alt me-1 text-primary"></i> 
                                         Reg: <span class="text-white">{{ v.purchase_year }}</span>
                                     </div>
@@ -345,7 +394,7 @@
                             </div>
 
                             <div class="fs-4 fw-bold mb-4 text-white">
-                                {{ v.current_odometer }} <span class="fs-6 text-muted fw-normal">km</span>
+                                {{ v.current_odometer }} <span class="fs-6 text-muted fw-normal" style="color: #cbd5e1 !important;">km</span>
                             </div>
                             
                             <div class="d-grid gap-2">
@@ -364,11 +413,21 @@
                             <i class="fas fa-car fa-3x text-muted opacity-50"></i>
                         </div>
                         <h5 class="text-white fw-bold">Garage is Empty</h5>
-                        <p class="text-muted mb-4">Add your first vehicle to start tracking costs.</p>
+                        <p class="text-muted mb-4" style="color: #e2e8f0 !important;">Add your first vehicle to start tracking costs.</p>
                         <a href="{% url 'add_vehicle' %}" class="btn btn-primary px-5 py-2 rounded-pill">Add Vehicle</a>
                     </div>
                  </div>
             {% endif %}
+
+            <!-- RECOMMENDATION ENGINE BUTTON -->
+            <div class="col-12 fade-in-up" style="animation-delay: 0.6s;">
+                <div class="d-grid">
+                    <a href="{% url 'recommend_car' %}" class="btn btn-outline-secondary d-flex align-items-center justify-content-center gap-3 py-3" style="border-style: dashed; border-width: 2px;">
+                        <i class="fas fa-search-plus fs-4 text-primary"></i>
+                        <span class="text-white fw-bold">Looking for a new ride? Try our Recommendation Engine</span>
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -393,7 +452,7 @@
                 </a>
             </div>
 
-            <h6 class="text-muted small text-uppercase fw-bold mb-4 letter-spacing-1">Recent Activity</h6>
+            <h6 class="text-muted small text-uppercase fw-bold mb-4 letter-spacing-1" style="color: #e2e8f0 !important;">Recent Activity</h6>
             <div class="activity-list">
                 <!-- Activity Item 1 -->
                 <div class="d-flex gap-3 mb-4 activity-item">
@@ -406,7 +465,7 @@
                     <div class="ps-2">
                         <div class="text-white small fw-bold">No recent trips</div>
                         <!-- UPDATED: Text Color White -->
-                        <div class="text-white small" style="font-size: 0.8rem;">Your timeline is empty.</div>
+                        <div class="text-white small" style="font-size: 0.8rem; color: #cbd5e1 !important;">Your timeline is empty.</div>
                     </div>
                 </div>
                 <!-- Activity Item 2 -->
@@ -419,7 +478,7 @@
                     <div class="ps-2">
                         <div class="text-white small fw-bold">Maintenance</div>
                         <!-- UPDATED: Text Color White -->
-                        <div class="text-white small" style="font-size: 0.8rem;">No service history available.</div>
+                        <div class="text-white small" style="font-size: 0.8rem; color: #cbd5e1 !important;">No service history available.</div>
                     </div>
                 </div>
             </div>
@@ -438,10 +497,10 @@
             <form method="post" action="{% url 'calculate_value' %}">
                 {% csrf_token %}
                 <div class="modal-body p-4">
-                    <p class="text-muted small mb-4">Calculate real-time market value based on age & condition.</p>
+                    <p class="text-muted small mb-4" style="color: #cbd5e1 !important;">Calculate real-time market value based on age & condition.</p>
                     <!-- Form Fields -->
                     <div class="mb-3">
-                        <label class="small text-muted mb-1">Vehicle</label>
+                        <label class="small text-muted mb-1" style="color: #94a3b8 !important;">Vehicle</label>
                         <select name="vehicle_id" class="form-select bg-black text-white border-secondary">
                             {% for car in vehicles %}
                                 <option value="{{ car.id }}">{{ car.make }} {{ car.model_name }}</option>
@@ -450,7 +509,7 @@
                     </div>
                     <!-- Other Dropdowns (Simplified for brevity, ensuring dark theme) -->
                     <div class="mb-3">
-                        <label class="small text-muted mb-1">Condition</label>
+                        <label class="small text-muted mb-1" style="color: #94a3b8 !important;">Condition</label>
                         <div class="btn-group w-100" role="group">
                             <input type="radio" class="btn-check" name="condition" id="c1" value="1.0" checked>
                             <label class="btn btn-outline-secondary btn-sm" for="c1">Good</label>
@@ -490,7 +549,7 @@
         <div class="modal-content bg-black border border-success text-center" style="border-radius: 20px; box-shadow: 0 0 50px rgba(16, 185, 129, 0.2);">
             <div class="modal-body p-5">
                 <i class="fas fa-coins fa-4x text-success mb-4" style="filter: drop-shadow(0 0 10px rgba(16, 185, 129, 0.5));"></i>
-                <h5 class="text-muted text-uppercase small letter-spacing-1">Estimated Value</h5>
+                <h5 class="text-muted text-uppercase small letter-spacing-1" style="color: #cbd5e1 !important;">Estimated Value</h5>
                 <h1 class="display-3 fw-bold text-white mb-2">₹ {{ valuation_result }}</h1>
                 <p class="text-white-50 mb-4">for {{ valuation_vehicle }}</p>
                 <button type="button" class="btn btn-success w-100 fw-bold py-3 rounded-pill" data-bs-dismiss="modal">Done</button>
