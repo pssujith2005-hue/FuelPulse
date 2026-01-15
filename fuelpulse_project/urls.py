@@ -56,7 +56,7 @@ urlpatterns = [
     path('tools/what-if/', views.what_if_analysis, name='what_if_analysis'),
     path('vehicle/update-docs/<int:vehicle_id>/', views.update_vehicle_docs, name='update_vehicle_docs'),
 
-    # --- ADMIN PANEL (User Management Only) ---
+    # --- ADMIN PANSEL (User Management Only) ---
     path('admin-login/', admin_views.admin_login, name='admin_login'),
     path('admin-panel/', admin_views.admin_dashboard, name='admin_dashboard'),
     path('admin-panel/users/', admin_views.manage_users, name='manage_users'),
