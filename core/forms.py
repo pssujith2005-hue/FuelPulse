@@ -63,7 +63,7 @@ class VehicleForm(forms.ModelForm):
 class TripLogForm(forms.ModelForm):
     class Meta:
         model = TripLog
-        fields = ['vehicle', 'start_odometer', 'end_odometer', 'date']
+        fields = ['vehicle', 'date', 'purpose', 'start_odometer', 'end_odometer', 'notes']
         widgets = {
             'vehicle': forms.Select(attrs={'class': 'form-select bg-dark text-white border-secondary'}),
             'start_odometer': forms.NumberInput(attrs={'class': 'form-control bg-dark text-white border-secondary'}),

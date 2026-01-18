@@ -7,161 +7,208 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
 
 <style>
-    /* --- SASSY DASHBOARD THEME --- */
+    /* --- SASSY PROFESSIONAL THEME --- */
     :root {
-        --bg-deep: #000000;
-        --card-bg: #0a0a0a;
-        --glass-border: rgba(255, 255, 255, 0.1);
-        --accent-gradient: linear-gradient(135deg, #06b6d4 0%, #8b5cf6 100%);
-        --text-glow: linear-gradient(90deg, #22d3ee, #c084fc);
+        --bg-core: #000000;
+        --card-surface: rgba(10, 10, 10, 0.6);
+        --border-light: rgba(255, 255, 255, 0.1);
+        --accent-blue: #3b82f6;
+        --accent-glow: rgba(59, 130, 246, 0.2);
+        --text-primary: #ffffff;
+        --text-secondary: #94a3b8;
+        --gradient-text: linear-gradient(135deg, #ffffff 0%, #3b82f6 100%);
     }
 
-    /* --- PHOTO CONTAINER STYLES --- */
+    body, .main-content {
+        background-color: var(--bg-core) !important;
+        color: var(--text-primary);
+        font-family: 'Outfit', sans-serif;
+    }
+
+    /* Gradient Text */
+    .text-gradient {
+        background: var(--gradient-text);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-weight: 800;
+    }
+
+    /* Glass Cards */
+    .glass-card {
+        background: var(--card-surface);
+        border: 1px solid var(--border-light);
+        border-radius: 24px;
+        padding: 2.5rem;
+        box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.8);
+        position: relative;
+        backdrop-filter: blur(10px);
+        overflow: hidden;
+    }
+
+    /* Top border shine */
+    .glass-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.5), transparent);
+    }
+
+    /* --- PROFILE PHOTO CONTAINER --- */
     .profile-upload-container {
         position: relative;
-        width: 150px;
-        height: 150px;
+        width: 160px;
+        height: 160px;
         margin: 0 auto; 
         border-radius: 50%;
-        {% if not user.profile_photo %}cursor: pointer;{% endif %}
+        cursor: pointer;
         overflow: hidden;
-        border: 3px solid transparent; 
-        background: var(--accent-gradient) border-box; 
-        -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
-        -webkit-mask-composite: xor; 
-        mask-composite: exclude;
-        box-shadow: 0 0 25px rgba(139, 92, 246, 0.4);
-        transition: transform 0.3s ease;
+        border: 2px solid rgba(59, 130, 246, 0.3); 
+        box-shadow: 0 0 40px var(--accent-glow);
+        transition: transform 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease;
+        background: #000;
     }
 
-    {% if not user.profile_photo %}
     .profile-upload-container:hover {
-        transform: scale(1.02);
+        transform: scale(1.03);
+        box-shadow: 0 0 60px rgba(59, 130, 246, 0.4);
+        border-color: #3b82f6;
     }
-    {% endif %}
+
+    /* Hover overlay with icon */
+    .profile-upload-container::after {
+        content: '\f030'; /* FontAwesome Camera Icon */
+        font-family: 'Font Awesome 5 Free';
+        font-weight: 900;
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 2rem;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .profile-upload-container:hover::after {
+        opacity: 1;
+    }
 
     .profile-upload-img {
         width: 100%;
         height: 100%;
         object-fit: cover;
-        border-radius: 50%;
     }
 
-    /* --- GENERAL STYLES --- */
-    .sassy-card {
-        background: var(--card-bg);
-        border: 1px solid var(--glass-border);
-        border-radius: 16px;
-        padding: 2rem;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    }
-    
-    /* INPUTS (Dark Theme) */
+    /* --- FORM STYLES --- */
     .form-control, .form-select {
-        background-color: #000000 !important;
-        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        background-color: rgba(255, 255, 255, 0.03) !important;
+        border: 1px solid var(--border-light) !important;
         color: #ffffff !important;
-        border-radius: 10px;
+        border-radius: 12px;
+        padding: 12px 15px;
+        transition: all 0.3s ease;
     }
     .form-control:focus, .form-select:focus {
-        border-color: #8b5cf6 !important;
-        box-shadow: 0 0 10px rgba(139, 92, 246, 0.2) !important;
+        background-color: rgba(255, 255, 255, 0.08) !important;
+        border-color: #3b82f6 !important;
+        box-shadow: 0 0 15px rgba(59, 130, 246, 0.1) !important;
     }
     
-    /* Fix Date Picker Icon */
-    input[type="date"] {
-        color-scheme: dark;
+    label {
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
     }
 
+    /* Buttons */
     .btn-sassy {
-        background: var(--accent-gradient);
+        background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
         border: none;
         color: white;
         font-weight: 700;
-        padding: 10px 20px;
-        border-radius: 10px;
+        padding: 14px 20px;
+        border-radius: 12px;
         transition: 0.3s;
+        box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
     }
-    .btn-sassy:hover { opacity: 0.9; transform: translateY(-2px); color: white; }
-    
-    .gradient-text {
-        background: var(--text-glow);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        font-weight: 800;
+    .btn-sassy:hover { 
+        transform: translateY(-2px); 
+        box-shadow: 0 6px 25px rgba(59, 130, 246, 0.5); 
+        color: white;
     }
-    
+
+    /* Vehicle List Item */
     .vehicle-item {
-        background: rgba(255, 255, 255, 0.03);
-        border-left: 4px solid #06b6d4;
-        transition: 0.3s;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-left: 3px solid #3b82f6;
+        transition: all 0.3s ease;
     }
-    .vehicle-item:hover { background: rgba(255, 255, 255, 0.06); }
-    
-    /* Modal Styles */
+    .vehicle-item:hover { 
+        background: rgba(255, 255, 255, 0.05); 
+        transform: translateX(5px);
+    }
+
+    /* Modal Styling */
     .modal-content {
-        background-color: #000;
-        border: 1px solid var(--glass-border);
-        box-shadow: 0 0 50px rgba(139, 92, 246, 0.2);
+        background-color: #0a0a0a;
+        border: 1px solid var(--border-light);
+        box-shadow: 0 0 50px rgba(0,0,0,0.9);
     }
-    .modal-header, .modal-footer {
-        border-color: var(--glass-border);
-    }
-    .btn-close-white {
-        filter: invert(1) grayscale(100%) brightness(200%);
-    }
+    .modal-header { border-bottom: 1px solid var(--border-light); }
+    .modal-footer { border-top: 1px solid var(--border-light); }
+    .btn-close-white { filter: invert(1) grayscale(100%) brightness(200%); }
+
 </style>
 
 <div class="container py-5">
     
-    <div class="row g-4">
+    <div class="row g-5">
+        
         <!-- LEFT COLUMN: EDIT FORM -->
         <div class="col-lg-5">
-            <div class="sassy-card h-100">
-                <h3 class="mb-4 gradient-text">Edit Profile</h3>
+            <div class="glass-card h-100">
+                <h3 class="mb-5 text-gradient">Edit Profile</h3>
                 
                 <form method="post" enctype="multipart/form-data" id="profileUpdateForm">
                     {% csrf_token %}
                     
-                    <div class="text-center mb-4">
+                    <!-- Profile Photo Section (Buttons Removed, Click Image to Edit) -->
+                    <div class="text-center mb-5">
                         <input type="file" name="profile_photo" accept="image/*" class="d-none" id="id_profile_photo_hidden">
 
-                        <label {% if not user.profile_photo %}for="id_profile_photo_hidden"{% endif %} class="profile-upload-container mb-3 d-block">
+                        <label for="id_profile_photo_hidden" class="profile-upload-container d-block" title="Click to change photo">
                             {% if user.profile_photo %}
                                 <img src="{{ user.profile_photo.url }}" class="profile-upload-img" id="imagePreview">
                             {% else %}
-                                <div class="profile-upload-img bg-dark d-flex align-items-center justify-content-center text-secondary fs-1 fw-bold" id="imagePreviewFallback">
+                                <!-- Fallback if no image -->
+                                <div class="profile-upload-img d-flex align-items-center justify-content-center text-secondary fs-1 fw-bold bg-dark h-100 w-100" id="imagePreviewFallback">
                                     {{ user.username|slice:":1"|upper }}
                                 </div>
                                 <img src="" class="profile-upload-img d-none" id="imagePreview" >
                             {% endif %}
                         </label>
-
-                        <div class="mt-3">
-                            {% if not user.profile_photo %}
-                                <label for="id_profile_photo_hidden" class="btn btn-outline-info btn-sm px-4 rounded-pill">
-                                    <i class="fas fa-camera me-2"></i>Choose Image
-                                </label>
-                                <p class="text-muted small mt-2 mb-0">Max file size: 2MB</p>
-                            {% else %}
-                                <label for="id_profile_photo_hidden" class="btn btn-outline-warning btn-sm px-4 rounded-pill">
-                                    <i class="fas fa-pen me-2"></i>Edit Profile Image
-                                </label>
-                            {% endif %}
-                        </div>
+                        <!-- No visible buttons here, cleaner look -->
                     </div>
 
-                    <div class="mb-3">
+                    <div class="mb-4">
                         {{ user_form.username|as_crispy_field }}
                     </div>
-                    <div class="mb-3">
+                    <div class="mb-4">
                         {{ user_form.email|as_crispy_field }}
                     </div>
-                    <div class="mb-3">
+                    <div class="mb-4">
                         {{ user_form.phone_number|as_crispy_field }}
                     </div>
 
-                    <button type="submit" class="btn-sassy w-100 mt-3">
+                    <button type="submit" class="btn-sassy w-100 mt-2">
                         <i class="fas fa-save me-2"></i> Save Changes
                     </button>
                 </form>
@@ -170,10 +217,13 @@
 
         <!-- RIGHT COLUMN: SUMMARY -->
         <div class="col-lg-7">
-            <div class="sassy-card mb-4">
-                <h3 class="gradient-text mb-4">Profile Summary</h3>
+            
+            <!-- Summary Card -->
+            <div class="glass-card mb-4">
+                <h3 class="text-gradient mb-4">Profile Summary</h3>
                 <div class="d-flex align-items-center gap-4">
-                    <div style="width: 80px; height: 80px; border-radius: 50%; padding: 2px; background: var(--accent-gradient);">
+                    <!-- Small Circle Display -->
+                    <div class="rounded-circle p-1" style="width: 85px; height: 85px; background: linear-gradient(135deg, #ffffff, #3b82f6);">
                          <div class="bg-black w-100 h-100 rounded-circle overflow-hidden d-flex align-items-center justify-content-center">
                             {% if user.profile_photo %}
                                 <img src="{{ user.profile_photo.url }}" style="width: 100%; height: 100%; object-fit: cover;">
@@ -183,43 +233,44 @@
                          </div>
                     </div>
                     <div>
-                        <h4 class="mb-1 text-white">{{ user.username }}</h4>
-                        <div class="d-flex flex-wrap gap-3 text-secondary small">
-                            <span><i class="fas fa-envelope text-info me-1"></i> {{ user.email|default:"No Email" }}</span>
-                            <span><i class="fas fa-phone text-info me-1"></i> {{ user.phone_number|default:"No Phone" }}</span>
-                             <span><i class="fas fa-calendar-alt text-info me-1"></i> Joined {{ user.date_joined|date:"M Y" }}</span>
+                        <h4 class="mb-1 text-white fw-bold">{{ user.username }}</h4>
+                        <div class="d-flex flex-wrap gap-3 text-secondary small mt-2">
+                            <span><i class="fas fa-envelope text-primary me-2"></i>{{ user.email|default:"No Email" }}</span>
+                            <span><i class="fas fa-phone text-primary me-2"></i>{{ user.phone_number|default:"No Phone" }}</span>
+                            <span><i class="fas fa-calendar-alt text-primary me-2"></i>Joined {{ user.date_joined|date:"M Y" }}</span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- VEHICLES SECTION WITH EDIT BUTTON -->
-            <div class="sassy-card">
+            <!-- Vehicles Card -->
+            <div class="glass-card">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h4 class="text-white fw-bold mb-0">My Vehicles</h4>
-                    <span class="badge bg-dark border border-secondary">{{ vehicles.count }} Total</span>
+                    <span class="badge bg-primary bg-opacity-25 text-primary border border-primary border-opacity-25 px-3 py-2 rounded-pill">{{ vehicles.count }} Total</span>
                 </div>
                 
                 {% if vehicles %}
-                    <div class="d-grid gap-3" style="max-height: 400px; overflow-y: auto;">
+                    <div class="d-grid gap-3" style="max-height: 400px; overflow-y: auto; padding-right: 5px;">
                         {% for v in vehicles %}
-                        <div class="vehicle-item p-3 rounded d-flex justify-content-between align-items-center">
+                        <div class="vehicle-item p-3 rounded-3 d-flex justify-content-between align-items-center">
                             <div class="d-flex align-items-center gap-3">
-                                <div class="rounded-circle bg-dark d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
-                                    <i class="fas fa-car text-info"></i>
+                                <div class="rounded-circle bg-dark d-flex align-items-center justify-content-center border border-secondary border-opacity-25" style="width: 50px; height: 50px;">
+                                    <i class="fas fa-car text-primary fs-5"></i>
                                 </div>
                                 <div>
-                                    <h6 class="text-white mb-0">{{ v.make }} {{ v.model_name }}</h6>
-                                    <small class="text-secondary">{{ v.license_plate }}</small>
-                                    <span class="badge {% if v.ownership_type == 'Sold' %}bg-danger{% else %}bg-success{% endif %} bg-opacity-25 ms-2" style="font-size: 0.7rem;">
-                                        {{ v.ownership_type }}
-                                    </span>
+                                    <h6 class="text-white mb-1 fw-bold">{{ v.make }} {{ v.model_name }}</h6>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <small class="text-secondary">{{ v.license_plate }}</small>
+                                        <span class="badge {% if v.ownership_type == 'Sold' %}bg-danger{% else %}bg-success{% endif %} bg-opacity-10 text-{% if v.ownership_type == 'Sold' %}danger{% else %}success{% endif %} border border-{% if v.ownership_type == 'Sold' %}danger{% else %}success{% endif %} border-opacity-25" style="font-size: 0.65rem;">
+                                            {{ v.ownership_type }}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                             
-                            <!-- NEW EDIT BUTTON -->
-                            <button type="button" class="btn btn-sm btn-outline-light border-0" data-bs-toggle="modal" data-bs-target="#editVehicleModal{{ v.id }}">
-                                <i class="fas fa-edit text-warning"></i>
+                            <button type="button" class="btn btn-sm btn-outline-light border-0 opacity-50 hover-opacity-100" data-bs-toggle="modal" data-bs-target="#editVehicleModal{{ v.id }}">
+                                <i class="fas fa-pen"></i>
                             </button>
                         </div>
 
@@ -246,23 +297,18 @@
                                                 </select>
                                             </div>
 
-                                            <div class="alert alert-secondary bg-dark border-secondary text-muted small mb-4">
-                                                <i class="fas fa-info-circle me-1"></i> Update expiry dates after renewing documents.
+                                            <div class="alert alert-dark border-secondary d-flex align-items-center gap-2 text-secondary small mb-4">
+                                                <i class="fas fa-info-circle"></i> Update expiry dates after renewing documents.
                                             </div>
 
-                                            <!-- Insurance -->
                                             <div class="mb-3">
                                                 <label class="form-label small text-muted text-uppercase fw-bold">Insurance Expiry</label>
                                                 <input type="date" name="insurance_expiry" class="form-control" value="{{ v.insurance_expiry|date:'Y-m-d' }}">
                                             </div>
-
-                                            <!-- Pollution -->
                                             <div class="mb-3">
                                                 <label class="form-label small text-muted text-uppercase fw-bold">Pollution (PUC) Expiry</label>
                                                 <input type="date" name="pollution_expiry" class="form-control" value="{{ v.pollution_expiry|date:'Y-m-d' }}">
                                             </div>
-
-                                            <!-- Fitness -->
                                             <div class="mb-3">
                                                 <label class="form-label small text-muted text-uppercase fw-bold">Fitness Cert Expiry</label>
                                                 <input type="date" name="fitness_expiry" class="form-control" value="{{ v.fitness_expiry|date:'Y-m-d' }}">
@@ -270,8 +316,8 @@
 
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                            <button type="submit" class="btn btn-sassy">Save Updates</button>
+                                            <button type="button" class="btn btn-outline-secondary border-0" data-bs-dismiss="modal">Cancel</button>
+                                            <button type="submit" class="btn btn-sassy px-4">Save Updates</button>
                                         </div>
                                     </form>
                                 </div>
@@ -281,8 +327,8 @@
                     </div>
                 {% else %}
                     <div class="text-center py-5">
-                        <p class="text-muted">No vehicles linked.</p>
-                        <a href="{% url 'add_vehicle' %}" class="btn btn-sm btn-outline-info">Add Vehicle</a>
+                        <p class="text-secondary mb-3">No vehicles linked to your account.</p>
+                        <a href="{% url 'add_vehicle' %}" class="btn btn-sm btn-outline-primary rounded-pill px-4">Add Vehicle</a>
                     </div>
                 {% endif %}
             </div>
@@ -296,12 +342,13 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const inputImage = document.getElementById('id_profile_photo_hidden');
-        // ... (Keep existing Cropper JS logic if needed, omitted here for brevity as it was already provided)
-        // Basic preview logic
-        if(inputImage){
+        const updateForm = document.getElementById('profileUpdateForm');
+
+        if(inputImage && updateForm){
              inputImage.addEventListener('change', function(e) {
                 const file = e.target.files[0];
                 if (file) {
+                    // Preview (UI Feedback)
                     const reader = new FileReader();
                     reader.onload = function(e) {
                         const previewImg = document.getElementById('imagePreview');
@@ -313,6 +360,12 @@
                         if(fallbackDiv) fallbackDiv.classList.add('d-none');
                     }
                     reader.readAsDataURL(file);
+
+                    // Auto-submit the form to save changes to server
+                    // This ensures the image persists if the user navigates away
+                    setTimeout(() => {
+                        updateForm.submit();
+                    }, 200);
                 }
             });
         }
