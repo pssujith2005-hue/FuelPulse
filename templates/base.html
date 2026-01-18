@@ -113,8 +113,8 @@
 
         /* Brand Logo */
         .brand-logo {
-            font-size: 1.6rem;
-            font-weight: 800;
+            font-size: 2rem;
+            font-weight: 1000;
             padding: 5px 20px 15px;
             display: flex;
             align-items: center;
@@ -131,11 +131,22 @@
             filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.6));
         }
 
+        /* --- NEW ANIMATION LOGIC HERE --- */
+        @keyframes sassy-gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
         .brand-text {
-            background: linear-gradient(135deg, #ffffff 0%, #3b82f6 60%, #1e3a8a 100%);
+            /* Sassy Gradient: Blue -> White -> Black -> Blue */
+            /* Using a very dark grey instead of pure black #000 so it doesn't totally vanish on the black bg */
+            background: linear-gradient(300deg, #3b82f6, #ffffff, #111111, #3b82f6);
+            background-size: 300% 300%;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             font-weight: 900;
+            animation: sassy-gradient 4s ease infinite;
         }
 
         /* Nav Links */
@@ -265,14 +276,15 @@
                 <a href="{% url 'dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
                     <i class="fas fa-th-large"></i> Dashboard
                 </a>
-                <a href="{% url 'analytics_dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'analytics_dashboard' %}active{% endif %}">
-                    <i class="fas fa-chart-line"></i> Fleet Analytics
-                </a>
+                
                 <a href="{% url 'log_trip' %}" class="nav-link {% if request.resolver_match.url_name == 'log_trip' %}active{% endif %}">
                     <i class="fas fa-location-arrow"></i> Log Trip
                 </a>
                 <a href="{% url 'log_expense' %}" class="nav-link {% if request.resolver_match.url_name == 'log_expense' %}active{% endif %}">
                     <i class="fas fa-file-invoice-dollar"></i> Log Expense
+                </a>
+                <a href="{% url 'analytics_dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'analytics_dashboard' %}active{% endif %}">
+                    <i class="fas fa-chart-line"></i> Fleet Analytics
                 </a>
                 <a href="{% url 'history' %}" class="nav-link {% if request.resolver_match.url_name == 'history' %}active{% endif %}">
                     <i class="fas fa-history"></i> History
@@ -346,23 +358,58 @@
 
             const chatBox = document.getElementById('chatMessages');
             
-            // User Msg
+            // 1. Display User Message
             chatBox.innerHTML += `
                 <div class="text-end mb-3">
                     <span class="bg-primary text-white p-2 px-3 rounded-3 d-inline-block small shadow-sm">${msg}</span>
                 </div>`;
             input.value = '';
+            chatBox.scrollTop = chatBox.scrollHeight;
 
-            // Auto Reply
-            setTimeout(() => {
+            // 2. Add Loading Indicator
+            const loadingId = 'loading-' + Date.now();
+            chatBox.innerHTML += `
+                <div id="${loadingId}" class="text-start mb-3">
+                    <span class="bg-dark border border-secondary text-light p-2 px-3 rounded-3 d-inline-block small">
+                        <i class="fas fa-circle-notch fa-spin"></i> Thinking...
+                    </span>
+                </div>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            // 3. Send to Server (Google Gemini Backend)
+            fetch('/api/chat/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ 'message': msg })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Remove Loading Indicator
+                document.getElementById(loadingId).remove();
+                
+                const reply = data.reply || "I'm having trouble connecting right now.";
+                
+                // Display AI Reply
                 chatBox.innerHTML += `
                     <div class="text-start mb-3">
                         <span class="bg-dark border border-secondary text-light p-2 px-3 rounded-3 d-inline-block small">
-                            I'm here to help! Please check the dashboard for analytics.
+                            ${reply}
                         </span>
                     </div>`;
                 chatBox.scrollTop = chatBox.scrollHeight;
-            }, 800);
+            })
+            .catch(error => {
+                document.getElementById(loadingId).remove();
+                chatBox.innerHTML += `
+                    <div class="text-start mb-3">
+                        <span class="bg-danger text-white p-2 px-3 rounded-3 d-inline-block small">
+                            Error: Could not reach the AI server.
+                        </span>
+                    </div>`;
+                console.error('Chat Error:', error);
+            });
         }
     </script>
 

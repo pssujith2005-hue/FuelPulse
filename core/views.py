@@ -16,6 +16,9 @@ from django.core.mail import send_mail
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 
+
+
+
 # --- Django Auth Imports ---
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -197,41 +200,77 @@ def dashboard(request):
 @login_required
 def analytics_dashboard(request):
     return render(request, 'core/analytics.html')
+# core/views.py
+# =========================================================
+#  AI CHATBOT (Google Gemini Implementation)
+# =========================================================
 @csrf_exempt
 def chat_with_ai(request):
     if request.method == "POST":
         try:
+            # 1. CHECK LIBRARY
+            try:
+                import google.generativeai as genai
+            except ImportError:
+                return JsonResponse({'reply': "Error: Library missing. Run 'pip install google-generativeai'"}, status=200)
+
             data = json.loads(request.body)
             user_message = data.get('message', '')
 
-            # This "System" message tells the AI who it is. 
-            # This makes it a "Custom" bot for YOUR website.
-            system_instruction = """
-            You are a helpful customer support assistant for a Car Rental website. 
-            You only answer questions about vehicles, bookings, payments, and documents.
-            If the user asks about something else, politely bring them back to car rentals.
-            Keep answers short and concise (under 50 words).
+            # 2. GET API KEY FROM SETTINGS
+            api_key = getattr(settings, 'GEMINI_API_KEY', "AIzaSyAo6PF3Z8-Z5RUjFGuRsua6clnaZt4YoRo")
+            
+            # Clean up key if needed
+            if api_key:
+                api_key = str(api_key).strip()
+
+            if not api_key or "YOUR_" in api_key:
+                return JsonResponse({'reply': "Error: API Key is missing or invalid in settings.py."}, status=200)
+
+            # 3. RUN AI with Model Fallback
+            genai.configure(api_key=api_key)
+
+            # List of models to try in order of preference
+            models_to_try = ["gemini-1.5-flash", "gemini-pro", "gemini-1.0-pro", "gemini-1.5-pro"]
+            
+            response_text = None
+            last_error = None
+
+            prompt = f"""
+            You are FuelPulse AI, an intelligent fleet management assistant.
+            Keep your answers short, professional, and helpful (under 50 words).
+            
+            User: {user_message}
+            Assistant:
             """
 
-            response = client.chat.completions.create(
-                model="gpt-3.5-turbo", # or "gpt-4"
-                messages=[
-                    {"role": "system", "content": system_instruction},
-                    {"role": "user", "content": user_message}
-                ]
-            )
+            for model_name in models_to_try:
+                try:
+                    # Initialize model
+                    model = genai.GenerativeModel(model_name)
+                    # Attempt generation
+                    response = model.generate_content(prompt)
+                    response_text = response.text
+                    break # If successful, break the loop
+                except Exception as e:
+                    last_error = e
+                    continue # Try next model
 
-            ai_reply = response.choices[0].message.content
-            return JsonResponse({'reply': ai_reply})
+            if response_text:
+                return JsonResponse({'reply': response_text})
+            else:
+                # If all models failed
+                error_msg = str(last_error) if last_error else "Unknown error"
+                print(f"AI ALL MODELS FAILED. Last error: {error_msg}")
+                return JsonResponse({'reply': f"AI Error: Could not find a compatible model. Last error: {error_msg}"}, status=200)
 
         except Exception as e:
-            return JsonResponse({'error': str(e)}, status=500)
+            error_str = str(e)
+            print(f"AI CRITICAL ERROR: {error_str}")
+            return JsonResponse({'reply': f"AI Error: {error_str}"}, status=200)
 
     return JsonResponse({'error': 'Invalid request'}, status=400)
-# core/views.py
-# core/views.py
 
-# core/views.py
 
 @login_required
 def add_vehicle(request):

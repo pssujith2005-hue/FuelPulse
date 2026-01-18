@@ -43,6 +43,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
 ROOT_URLCONF = 'fuelpulse_project.urls'
@@ -87,7 +88,7 @@ USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
-STATIC_URL = '/static/'  # Changed to absolute path for safety
+STATIC_URL = '/static/'  
 STATICFILES_DIRS = [BASE_DIR / "static"]
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
@@ -101,8 +102,9 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 DEFAULT_FROM_EMAIL = 'no-reply@fuelpulse.com'
 
 # --- MEDIA CONFIGURATION ---
-# Base URL to serve media files
 MEDIA_URL = '/media/'
-
-# Path where media is stored
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# --- AI CONFIGURATION ---
+# Your Google Gemini API Key
+GEMINI_API_KEY = "AIzaSyAo6PF3Z8-Z5RUjFGuRsua6clnaZt4YoRo"
