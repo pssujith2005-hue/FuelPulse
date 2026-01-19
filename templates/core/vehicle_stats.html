@@ -63,6 +63,29 @@
         margin-bottom: 0.5rem;
     }
 
+    /* --- CUSTOM VISIBLE BADGES --- */
+    /* High contrast text colors for dark backgrounds */
+    .badge-glow-success { 
+        background: rgba(16, 185, 129, 0.15); 
+        color: #6ee7b7 !important; /* Bright Green */
+        border: 1px solid rgba(16, 185, 129, 0.3); 
+    }
+    .badge-glow-warning { 
+        background: rgba(245, 158, 11, 0.15); 
+        color: #fcd34d !important; /* Bright Yellow */
+        border: 1px solid rgba(245, 158, 11, 0.3); 
+    }
+    .badge-glow-danger { 
+        background: rgba(239, 68, 68, 0.15); 
+        color: #fca5a5 !important; /* Bright Red */
+        border: 1px solid rgba(239, 68, 68, 0.3); 
+    }
+    .badge-glow-info { 
+        background: rgba(6, 182, 212, 0.15); 
+        color: #67e8f9 !important; /* Bright Cyan */
+        border: 1px solid rgba(6, 182, 212, 0.3); 
+    }
+
     /* --- PROGRESS BARS --- */
     .progress {
         background-color: rgba(255, 255, 255, 0.1);
@@ -222,11 +245,11 @@
                     <small class="text-muted">Target: {{ maint.oil.target_km }} km</small>
                 </div>
                 {% if maint.oil.status == 'Good' %}
-                    <span class="badge bg-success bg-opacity-20 text-success border border-success border-opacity-25">Healthy</span>
+                    <span class="badge badge-glow-success">Healthy</span>
                 {% elif maint.oil.status == 'Warning' %}
-                    <span class="badge bg-warning bg-opacity-20 text-warning border border-warning border-opacity-25">Upcoming</span>
+                    <span class="badge badge-glow-warning">Upcoming</span>
                 {% else %}
-                    <span class="badge bg-danger bg-opacity-20 text-danger border border-danger border-opacity-25">Urgent</span>
+                    <span class="badge badge-glow-danger">Urgent</span>
                 {% endif %}
             </div>
             
@@ -257,9 +280,9 @@
                     <small class="text-muted">Target: {{ maint.tyre.target_km }} km</small>
                 </div>
                 {% if maint.tyre.status == 'Good' %}
-                    <span class="badge bg-success bg-opacity-20 text-success border border-success border-opacity-25">Good</span>
+                    <span class="badge badge-glow-success">Good</span>
                 {% else %}
-                    <span class="badge bg-warning bg-opacity-20 text-warning border border-warning border-opacity-25">Check</span>
+                    <span class="badge badge-glow-warning">Check</span>
                 {% endif %}
             </div>
             
@@ -288,7 +311,7 @@
                     <h6 class="text-white fw-bold mb-1"><i class="fas fa-tools text-primary me-2"></i> General Service</h6>
                     <small class="text-muted">Target: {{ maint.general.target_km }} km</small>
                 </div>
-                <span class="badge bg-info bg-opacity-20 text-info border border-info border-opacity-25">Routine</span>
+                <span class="badge badge-glow-info">Routine</span>
             </div>
             
             <div class="mb-3">
@@ -335,9 +358,9 @@
                             <td>{{ vehicle.insurance_expiry|date:"d M Y"|default:"Not Set" }}</td>
                             <td class="text-end">
                                 {% if vehicle.insurance_expiry and vehicle.insurance_expiry < today %}
-                                    <span class="badge bg-danger bg-opacity-25 text-danger">Expired</span>
+                                    <span class="badge badge-glow-danger">Expired</span>
                                 {% else %}
-                                    <span class="badge bg-success bg-opacity-25 text-success">Valid</span>
+                                    <span class="badge badge-glow-success">Valid</span>
                                 {% endif %}
                             </td>
                         </tr>
@@ -351,9 +374,9 @@
                             <td>{{ vehicle.pollution_expiry|date:"d M Y"|default:"Not Set" }}</td>
                             <td class="text-end">
                                 {% if vehicle.pollution_expiry and vehicle.pollution_expiry < today %}
-                                    <span class="badge bg-danger bg-opacity-25 text-danger">Expired</span>
+                                    <span class="badge badge-glow-danger">Expired</span>
                                 {% else %}
-                                    <span class="badge bg-success bg-opacity-25 text-success">Valid</span>
+                                    <span class="badge badge-glow-success">Valid</span>
                                 {% endif %}
                             </td>
                         </tr>
@@ -367,9 +390,9 @@
                             <td>{{ vehicle.fitness_expiry|date:"d M Y"|default:"Not Set" }}</td>
                             <td class="text-end">
                                 {% if vehicle.fitness_expiry and vehicle.fitness_expiry < today %}
-                                    <span class="badge bg-danger bg-opacity-25 text-danger">Expired</span>
+                                    <span class="badge badge-glow-danger">Expired</span>
                                 {% else %}
-                                    <span class="badge bg-success bg-opacity-25 text-success">Valid</span>
+                                    <span class="badge badge-glow-success">Valid</span>
                                 {% endif %}
                             </td>
                         </tr>

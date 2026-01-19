@@ -1,57 +1,226 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="row mb-5">
-    <div class="col-12">
-        <h2 class="text-white fw-bold">User Administration</h2>
-        <p class="text-muted">Overview of registered accounts and system access.</p>
+<style>
+    /* --- SASSY ADMIN THEME (Red/Black/White) --- */
+    :root {
+        --bg-pure: #000000;
+        --card-bg: #050505;
+        --glass-border: rgba(255, 255, 255, 0.15);
+        --admin-red: #dc2626;
+        --gradient-red: linear-gradient(135deg, #ffffff 0%, #ef4444 100%);
+        --gradient-dark-red: linear-gradient(135deg, #7f1d1d 0%, #dc2626 100%);
+        --glow-red: 0 0 25px rgba(220, 38, 38, 0.2);
+    }
+
+    body {
+        background-color: var(--bg-pure) !important;
+        font-family: 'Outfit', sans-serif;
+        color: white;
+    }
+
+    /* --- ANIMATIONS --- */
+    @keyframes slideInUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulse-glow {
+        0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); }
+        70% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+    }
+
+    .animate-enter {
+        animation: slideInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        opacity: 0;
+    }
+
+    /* --- CARDS --- */
+    .admin-card {
+        background-color: var(--card-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 20px;
+        padding: 2rem;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.4s ease;
+    }
+
+    .admin-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; width: 4px; height: 100%;
+        background: var(--admin-red);
+    }
+
+    .admin-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--glow-red);
+        border-color: var(--admin-red);
+    }
+
+    /* --- TYPOGRAPHY --- */
+    .hero-title {
+        font-weight: 800;
+        letter-spacing: -1px;
+        background: var(--gradient-red);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .stat-value {
+        font-size: 3.5rem;
+        font-weight: 700;
+        line-height: 1;
+        color: white;
+    }
+
+    .stat-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: #a3a3a3;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    /* --- ICONS --- */
+    .icon-box {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        background: linear-gradient(145deg, #111, #000);
+        border: 1px solid rgba(255,255,255,0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        color: var(--admin-red);
+        box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
+        transition: 0.4s;
+    }
+
+    .admin-card:hover .icon-box {
+        background: var(--admin-red);
+        color: white;
+        transform: rotate(10deg) scale(1.1);
+    }
+
+    /* --- BUTTONS --- */
+    .btn-admin-action {
+        background: white;
+        color: black;
+        font-weight: 800;
+        padding: 15px 40px;
+        border-radius: 50px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        border: none;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+    }
+
+    .btn-admin-action::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; width: 0%; height: 100%;
+        background: var(--admin-red);
+        z-index: -1;
+        transition: width 0.3s ease;
+        transform: skewX(-20deg);
+        transform-origin: left;
+    }
+
+    .btn-admin-action:hover {
+        color: white;
+        box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+    }
+    
+    .btn-admin-action:hover::before {
+        width: 150%;
+    }
+
+</style>
+
+<!-- HEADER -->
+<div class="row mb-5 animate-enter">
+    <div class="col-12 d-flex align-items-center justify-content-between">
+        <div>
+            <h6 class="text-danger fw-bold text-uppercase letter-spacing-2 mb-1">System Control</h6>
+            <h1 class="hero-title display-4 mb-0">Admin Dashboard</h1>
+        </div>
+        <div class="d-none d-md-block">
+            <div class="d-flex align-items-center gap-2 text-muted small border border-secondary border-opacity-25 px-3 py-2 rounded-pill bg-dark">
+                <div class="spinner-grow spinner-grow-sm text-danger" role="status"></div>
+                System Live
+            </div>
+        </div>
     </div>
 </div>
 
+<!-- STATS ROW -->
 <div class="row g-4 mb-5">
-    <div class="col-md-6">
-        <div class="stats-card border-start border-primary border-4 h-100 p-4">
+    <!-- TOTAL USERS -->
+    <div class="col-md-6 animate-enter" style="animation-delay: 0.1s;">
+        <div class="admin-card h-100">
             <div class="d-flex align-items-center justify-content-between">
                 <div>
-                    <h6 class="text-muted text-uppercase small fw-bold mb-2">Total Registered Users</h6>
-                    <h1 class="text-white display-4 fw-bold mb-0">{{ total_users }}</h1>
+                    <div class="stat-label">Total Registered Users</div>
+                    <div class="stat-value">{{ total_users }}</div>
                 </div>
-                <div class="rounded-circle bg-primary bg-opacity-10 p-3">
-                    <i class="fas fa-users fa-2x text-primary"></i>
+                <div class="icon-box">
+                    <i class="fas fa-users"></i>
                 </div>
+            </div>
+            <div class="mt-4 pt-3 border-top border-secondary border-opacity-25 d-flex justify-content-between align-items-center">
+                <span class="text-muted small">Active database records</span>
+                <i class="fas fa-database text-dark"></i>
             </div>
         </div>
     </div>
 
-    <div class="col-md-6">
-        <div class="stats-card border-start border-danger border-4 h-100 p-4">
+    <!-- SUSPENDED USERS -->
+    <div class="col-md-6 animate-enter" style="animation-delay: 0.2s;">
+        <div class="admin-card h-100">
             <div class="d-flex align-items-center justify-content-between">
                 <div>
-                    <h6 class="text-muted text-uppercase small fw-bold mb-2">Suspended Accounts</h6>
-                    <h1 class="text-white display-4 fw-bold mb-0">{{ suspended_users }}</h1>
+                    <div class="stat-label text-danger">Suspended Accounts</div>
+                    <div class="stat-value text-white">{{ suspended_users }}</div>
                 </div>
-                <div class="rounded-circle bg-danger bg-opacity-10 p-3">
-                    <i class="fas fa-user-slash fa-2x text-danger"></i>
+                <div class="icon-box">
+                    <i class="fas fa-user-lock"></i>
                 </div>
+            </div>
+            <div class="mt-4 pt-3 border-top border-secondary border-opacity-25 d-flex justify-content-between align-items-center">
+                <span class="text-muted small">Restricted access status</span>
+                <i class="fas fa-shield-alt text-dark"></i>
             </div>
         </div>
     </div>
 </div>
 
-<div class="row">
+<!-- MAIN ACTION -->
+<div class="row animate-enter" style="animation-delay: 0.3s;">
     <div class="col-12">
-        <div class="stats-card text-center p-5">
-            <div class="mb-4">
-                <i class="fas fa-users-cog fa-4x text-muted opacity-50"></i>
+        <div class="admin-card text-center py-5">
+            <div class="mb-4 d-inline-block position-relative">
+                <div class="position-absolute top-50 start-50 translate-middle" style="width: 100px; height: 100px; background: var(--admin-red); filter: blur(40px); opacity: 0.4; border-radius: 50%;"></div>
+                <i class="fas fa-users-cog fa-5x text-white position-relative z-1" style="filter: drop-shadow(0 0 10px rgba(0,0,0,0.5));"></i>
             </div>
-            <h4 class="text-white fw-bold mb-3">Manage User Accounts</h4>
-            <p class="text-muted mb-4" style="max-width: 500px; margin: 0 auto;">
-                View the full list of users, suspend active accounts, or permanently delete user data from the system.
+            
+            <h2 class="text-white fw-bold mb-3">User Management Console</h2>
+            <p class="text-white-50 mb-5 mx-auto" style="max-width: 600px; font-size: 1.1rem;">
+                Full administrative access to view user lists, toggle suspension status, or permanently remove accounts from the system.
             </p>
-            <a href="{% url 'manage_users' %}" class="btn btn-primary px-5 py-2 fw-bold">
-                <i class="fas fa-list-ul me-2"></i> View All Users
+
+            <a href="{% url 'manage_users' %}" class="btn-admin-action text-decoration-none">
+                <i class="fas fa-terminal me-2"></i> Access User List
             </a>
         </div>
     </div>
 </div>
+
 {% endblock %}

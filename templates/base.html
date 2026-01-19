@@ -25,6 +25,26 @@
             --text-muted: #f0f0f0; 
             --accent-gradient: linear-gradient(120deg, #1e3a8a 0%, #3b82f6 50%, #ffffff 150%);
             --neon-glow: 0 0 15px rgba(59, 130, 246, 0.4);
+            --hover-tint: rgba(255, 255, 255, 0.05);
+            --hover-border: rgba(255, 255, 255, 0.1);
+            --icon-hover: #60a5fa;
+            --icon-shadow: rgba(96, 165, 250, 0.6);
+            --logo-grad-start: #ffffff;
+            --logo-grad-end: #3b82f6;
+            --text-anim-grad: linear-gradient(300deg, #3b82f6, #ffffff, #111111, #3b82f6);
+        }
+
+        /* --- ADMIN THEME OVERRIDES --- */
+        body.admin-theme {
+            --accent-gradient: linear-gradient(135deg, #ffffff 0%, #dc2626 50%, #000000 100%);
+            --neon-glow: 0 0 20px rgba(220, 38, 38, 0.4);
+            --hover-tint: rgba(220, 38, 38, 0.1);
+            --hover-border: rgba(220, 38, 38, 0.3);
+            --icon-hover: #ef4444;
+            --icon-shadow: rgba(239, 68, 68, 0.6);
+            --logo-grad-start: #ffffff;
+            --logo-grad-end: #dc2626;
+            --text-anim-grad: linear-gradient(300deg, #dc2626, #ffffff, #000000, #dc2626);
         }
 
         body {
@@ -63,9 +83,16 @@
             border-color: #3b82f6;
             box-shadow: 0 0 0 0.25rem rgba(59, 130, 246, 0.25);
         }
+        /* Admin Focus Color Override */
+        body.admin-theme .form-control:focus, body.admin-theme .form-select:focus {
+            border-color: #dc2626;
+            box-shadow: 0 0 0 0.25rem rgba(220, 38, 38, 0.25);
+        }
+
         .form-control::placeholder { color: #aaaaaa; }
         .table { --bs-table-color: var(--text-main); --bs-table-bg: transparent; }
         a { color: #60a5fa; text-decoration: none; }
+        body.admin-theme a { color: #fca5a5; }
         a:hover { color: #ffffff; }
 
         /* --- SIDEBAR STYLING --- */
@@ -94,11 +121,14 @@
         }
         
         .brand-logo i {
-            background: linear-gradient(to bottom, #ffffff, #3b82f6);
+            background: linear-gradient(to bottom, var(--logo-grad-start), var(--logo-grad-end));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             font-size: 1.6rem;
-            filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.6));
+            filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.6)); /* Default Shadow */
+        }
+        body.admin-theme .brand-logo i {
+             filter: drop-shadow(0 0 8px rgba(220, 38, 38, 0.6));
         }
 
         @keyframes sassy-gradient {
@@ -108,7 +138,7 @@
         }
 
         .brand-text {
-            background: linear-gradient(300deg, #3b82f6, #ffffff, #111111, #3b82f6);
+            background: var(--text-anim-grad);
             background-size: 300% 300%;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -148,13 +178,13 @@
 
         .nav-link:hover {
             color: white !important;
-            background: rgba(255, 255, 255, 0.05);
-            border-color: rgba(255, 255, 255, 0.1);
+            background: var(--hover-tint);
+            border-color: var(--hover-border);
             transform: translateX(5px);
         }
         .nav-link:hover > i {
-            color: #60a5fa !important;
-            text-shadow: 0 0 10px rgba(96, 165, 250, 0.6);
+            color: var(--icon-hover) !important;
+            text-shadow: 0 0 10px var(--icon-shadow);
         }
 
         .nav-link.active {
@@ -301,7 +331,7 @@
 
     </style>
 </head>
-<body>
+<body class="{% if user.is_superuser and '/admin-panel/' in request.path %}admin-theme{% endif %}">
 
     <!-- BACKDROP FOR CHAT -->
     <div id="chatBackdrop" onclick="toggleChat()"></div>
@@ -315,13 +345,15 @@
         
         <div class="nav-column">
             {% if user.is_superuser and '/admin-panel/' in request.path %}
-                <div class="small text-uppercase">Admin Controls</div>
+                <div class="small text-uppercase" style="color: #fca5a5 !important; border-bottom: 1px solid rgba(220,38,38,0.3); padding-bottom: 5px;">Admin Controls</div>
                 <a href="{% url 'admin_dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
                     <i class="fas fa-tachometer-alt"></i> Command Center
                 </a>
                 <a href="{% url 'manage_users' %}" class="nav-link {% if request.resolver_match.url_name == 'manage_users' %}active{% endif %}">
                     <i class="fas fa-users-cog"></i> Manage Users
                 </a>
+                 <!-- Link back to User Dashboard -->
+                 
             {% else %}
                 <a href="{% url 'dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
                     <i class="fas fa-th-large"></i> Dashboard
@@ -345,6 +377,8 @@
                 <a href="{% url 'profile' %}" class="nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
                     <i class="fas fa-user-circle"></i> Profile
                 </a>
+                
+                
             {% endif %}
         </div>
 
