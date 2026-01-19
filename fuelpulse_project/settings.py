@@ -44,6 +44,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    
 ]
 
 ROOT_URLCONF = 'fuelpulse_project.urls'
@@ -107,4 +108,4 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 # --- AI CONFIGURATION ---
 # Your Google Gemini API Key
-GEMINI_API_KEY = "AIzaSyAo6PF3Z8-Z5RUjFGuRsua6clnaZt4YoRo"
+GEMINI_API_KEY = "AIzaSyA6r_or8GZhTJdIfRkrbuI12kwa6_3k4N0"

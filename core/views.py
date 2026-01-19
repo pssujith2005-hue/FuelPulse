@@ -200,78 +200,184 @@ def dashboard(request):
 @login_required
 def analytics_dashboard(request):
     return render(request, 'core/analytics.html')
-# core/views.py
-# =========================================================
-#  AI CHATBOT (Google Gemini Implementation)
-# =========================================================
 @csrf_exempt
 def chat_with_ai(request):
+    """
+    Handles AI Chat requests.
+    INJECTS: 
+    1. Vehicle Expiry Data (Insurance, PUC, Fitness)
+    2. Maintenance Predictions (Oil, Tyre, Service)
+    3. Full Expense History
+    4. Car Recommendations Data
+    5. Action Links (Log Fuel, Log Trip)
+    """
     if request.method == "POST":
         try:
-            # 1. CHECK LIBRARY
-            try:
-                import google.generativeai as genai
-            except ImportError:
-                return JsonResponse({'reply': "Error: Library missing. Run 'pip install google-generativeai'"}, status=200)
-
+            import google.generativeai as genai
             data = json.loads(request.body)
             user_message = data.get('message', '')
 
-            # 2. GET API KEY FROM SETTINGS
-            api_key = getattr(settings, 'GEMINI_API_KEY', "AIzaSyAo6PF3Z8-Z5RUjFGuRsua6clnaZt4YoRo")
-            
-            # Clean up key if needed
-            if api_key:
-                api_key = str(api_key).strip()
+            # 2. GET API KEY
+            settings_key = getattr(settings, 'GEMINI_API_KEY', None)
+            HARDCODED_BACKUP = "AIzaSyA6r_or8GZhTJdIfRkrbuI12kwa6_3k4N0"
+            api_key = settings_key if settings_key else HARDCODED_BACKUP
+            api_key = str(api_key).strip()
 
             if not api_key or "YOUR_" in api_key:
-                return JsonResponse({'reply': "Error: API Key is missing or invalid in settings.py."}, status=200)
+                return JsonResponse({'reply': "Error: API Key is invalid."}, status=200)
 
-            # 3. RUN AI with Model Fallback
             genai.configure(api_key=api_key)
 
-            # List of models to try in order of preference
-            models_to_try = ["gemini-1.5-flash", "gemini-pro", "gemini-1.0-pro", "gemini-1.5-pro"]
+            # 3. BUILD RICH CONTEXT
+            system_context = ""
+            today = datetime.date.today()
             
-            response_text = None
-            last_error = None
+            if request.user.is_authenticated:
+                # A. VEHICLE DEEP DIVE
+                user_vehicles = Vehicle.objects.filter(owner=request.user, is_active=True)
+                
+                if user_vehicles.exists():
+                    system_context += "USER'S FLEET STATUS:\n"
+                    for v in user_vehicles:
+                        # --- 1. Maintenance Logic (Replicated from vehicle_stats view) ---
+                        if v.category == 'Two Wheeler':
+                            intervals = {'oil': 3000, 'tyre': 25000, 'general': 2500}
+                        else:
+                            intervals = {'oil': 10000, 'tyre': 40000, 'general': 5000}
+                        
+                        maint_status = []
+                        for m_type, interval in intervals.items():
+                            last_log = MaintenanceLog.objects.filter(vehicle=v, service_type=m_type).order_by('-date').first()
+                            if last_log:
+                                last_km = last_log.odometer_reading
+                                next_due = last_km + interval
+                            else:
+                                next_due = (int(v.current_odometer / interval) + 1) * interval
+                            
+                            remaining = next_due - v.current_odometer
+                            status_str = "Overdue" if remaining < 0 else f"in {remaining} km"
+                            maint_status.append(f"{m_type.title()} Service due {status_str} (Target: {next_due} km)")
 
-            prompt = f"""
-            You are FuelPulse AI, an intelligent fleet management assistant.
-            Keep your answers short, professional, and helpful (under 50 words).
+                        # --- 2. Expiry Logic ---
+                        expiry_alerts = []
+                        if v.insurance_expiry:
+                            days = (v.insurance_expiry - today).days
+                            expiry_alerts.append(f"Insurance expires: {v.insurance_expiry} ({days} days left)")
+                        else: expiry_alerts.append("Insurance: Not Set")
+                        
+                        if v.pollution_expiry:
+                            days = (v.pollution_expiry - today).days
+                            expiry_alerts.append(f"PUC expires: {v.pollution_expiry} ({days} days left)")
+                        else: expiry_alerts.append("PUC: Not Set")
+
+                        if v.fitness_expiry:
+                            days = (v.fitness_expiry - today).days
+                            expiry_alerts.append(f"Fitness expires: {v.fitness_expiry} ({days} days left)")
+
+                        # --- 3. Fuel Stats ---
+                        avg_data = FuelLog.objects.filter(vehicle=v, calculated_km_per_liter__gt=0).aggregate(Avg('calculated_km_per_liter'))
+                        real_mileage = avg_data['calculated_km_per_liter__avg']
+                        mileage_display = f"{round(real_mileage, 1)} km/l" if real_mileage else f"{v.target_mileage or 15} km/l (Est)"
+                        
+                        last_fuel = FuelLog.objects.filter(vehicle=v).order_by('-date').first()
+                        last_fuel_price = f"₹{round(last_fuel.total_cost / last_fuel.liters_filled, 2)}/L" if last_fuel and last_fuel.liters_filled else "Unknown"
+
+                        system_context += (
+                            f"\nVEHICLE: {v.make} {v.model_name} ({v.fuel_type})\n"
+                            f"  - Odometer: {v.current_odometer} km\n"
+                            f"  - Mileage: {mileage_display}\n"
+                            f"  - Last Known Fuel Price: {last_fuel_price}\n"
+                            f"  - Documents: {'; '.join(expiry_alerts)}\n"
+                            f"  - Maintenance Predictions: {'; '.join(maint_status)}\n"
+                            f"  - LOGGING LINKS: Log Fuel -> /log_fuel/{v.id}/ | Log Trip -> /log_trip/ | Stats -> /vehicle/{v.id}/\n"
+                        )
+                else:
+                    system_context += "User has no vehicles registered.\n"
+
+                # B. GENERAL EXPENSES (Full History)
+                expenses = ExpenseLog.objects.filter(user=request.user).order_by('-date')[:15] # Last 15
+                total_misc = ExpenseLog.objects.filter(user=request.user).aggregate(Sum('amount'))['amount__sum'] or 0
+                
+                system_context += f"\nEXPENSE HISTORY (Total: ₹{total_misc}):\n"
+                if expenses.exists():
+                    for e in expenses:
+                        system_context += f"- {e.date}: {e.expense_type} (₹{e.amount})\n"
+                else:
+                    system_context += "- No extra expenses recorded.\n"
+
+                # C. CAR RECOMMENDATION CONTEXT
+                # We provide a summary of the BUDGET_CARS list so the AI knows what it can suggest
+                car_db_sample = ", ".join([f"{c['make']} {c['model']} ({c['price']})" for c in BUDGET_CARS[:20]])
+                system_context += f"\nAVAILABLE CAR DATABASE FOR SUGGESTIONS: {car_db_sample} ... and more.\n"
+
+            else:
+                system_context += "User is not logged in.\n"
+
+            # 4. SYSTEM PROMPT
+            system_instruction = f"""
+            You are FuelPulse AI, an intelligent fleet manager.
             
-            User: {user_message}
-            Assistant:
+            AUTHORIZED DATA ACCESS:
+            {system_context}
+            
+            YOUR CAPABILITIES:
+            1. **Alerts:** Tell the user immediately if Insurance, PUC, or Maintenance is overdue or expiring soon based on the data above.
+            2. **Maintenance:** Predict when Oil, Tyre, or General Service is due based on the odometer data provided.
+            3. **Fuel Price Prediction:** You cannot predict live market prices, but you MUST use the "Last Known Fuel Price" from the vehicle data to give an estimate. Say "Based on your last refill, petrol is approx..."
+            4. **Car Suggestions:** If asked for a car within a budget, suggest from the Database list provided above.
+            5. **Logging Actions:** If the user wants to log fuel or a trip, PROVIDE THE EXACT LINK from the vehicle data (e.g., "Click here: /log_fuel/1/").
+            6. **Expense History:** You have access to the last 15 expenses. Summarize them if asked.
+            
+            Keep answers professional, helpful, and concise.
             """
 
-            for model_name in models_to_try:
-                try:
-                    # Initialize model
-                    model = genai.GenerativeModel(model_name)
-                    # Attempt generation
-                    response = model.generate_content(prompt)
-                    response_text = response.text
-                    break # If successful, break the loop
-                except Exception as e:
-                    last_error = e
-                    continue # Try next model
+            full_prompt = f"{system_instruction}\n\nUser: {user_message}\nAssistant:"
 
-            if response_text:
-                return JsonResponse({'reply': response_text})
+            # 5. GENERATE RESPONSE (Dynamic Fallback)
+            reply_text = None
+            
+            try:
+                # Try Flash first
+                model = genai.GenerativeModel('gemini-1.5-flash')
+                response = model.generate_content(full_prompt)
+                if response and response.text:
+                    return JsonResponse({'reply': response.text})
+            except Exception:
+                pass 
+
+            # Fallback discovery
+            try:
+                available_models = []
+                for m in genai.list_models():
+                    if 'generateContent' in m.supported_generation_methods:
+                        available_models.append(m.name)
+                available_models.sort(key=lambda x: 'flash' in x, reverse=True)
+
+                for model_name in available_models:
+                    try:
+                        model = genai.GenerativeModel(model_name)
+                        response = model.generate_content(full_prompt)
+                        if response and response.text:
+                            reply_text = response.text
+                            break
+                    except Exception:
+                        continue
+            except Exception as e:
+                return JsonResponse({'reply': f"AI Error: {str(e)}"}, status=200)
+
+            if reply_text:
+                return JsonResponse({'reply': reply_text})
             else:
-                # If all models failed
-                error_msg = str(last_error) if last_error else "Unknown error"
-                print(f"AI ALL MODELS FAILED. Last error: {error_msg}")
-                return JsonResponse({'reply': f"AI Error: Could not find a compatible model. Last error: {error_msg}"}, status=200)
+                return JsonResponse({'reply': "I'm currently unable to process your request. Please check your internet connection or try again later."}, status=200)
 
         except Exception as e:
-            error_str = str(e)
-            print(f"AI CRITICAL ERROR: {error_str}")
-            return JsonResponse({'reply': f"AI Error: {error_str}"}, status=200)
+            return JsonResponse({'reply': f"System Error: {str(e)}"}, status=200)
 
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
 
+
+# --- STANDARD VIEWS (Unchanged below) ---
 @login_required
 def add_vehicle(request):
     if request.method == 'POST':

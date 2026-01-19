@@ -47,7 +47,7 @@ urlpatterns = [
     path('trip-calculator/', views.trip_calculator, name='trip_calculator'),
     path('recommend-car/', views.recommend_car, name='recommend_car'),
     path('car-detail/<int:car_id>/', views.car_detail, name='car_detail'),
-    path('api/chat/', views.chat_with_ai, name='chat_with_ai'), 
+    path('api/chat/', views.chat_with_ai, name='chat_with_ai'),
 
     # --- USER ANALYTICS TOOLS (Individual Pages) ---
     path('tools/targets/', views.manage_fleet_targets, name='manage_fleet_targets'),
