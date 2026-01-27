@@ -730,37 +730,7 @@ def car_detail(request, car_id):  # <--- Added 'car_id' here!
         return redirect('recommend_car')
 
 
-@login_required
-def update_vehicle_docs(request, vehicle_id):
-    # USE 'Vehicle' HERE (Exact match to your import)
-    vehicle = get_object_or_404(Vehicle, id=vehicle_id, owner=request.user) 
-    
-    if request.method == 'POST':
-        # ... (rest of your code is fine)
-        # Get data from the form
-        ownership = request.POST.get('ownership_type')
-        insurance = request.POST.get('insurance_expiry')
-        pollution = request.POST.get('pollution_expiry')
-        fitness = request.POST.get('fitness_expiry')
 
-        # Update fields
-        vehicle.ownership_type = ownership
-
-        # Handle empty dates (if user clears them)
-        if insurance: vehicle.insurance_expiry = insurance
-        if pollution: vehicle.pollution_expiry = pollution
-        if fitness: vehicle.fitness_expiry = fitness
-
-        # If marked as Sold, you might want to set is_active=False
-        if ownership == 'Sold':
-            vehicle.is_active = False
-        else:
-            vehicle.is_active = True
-
-        vehicle.save()
-        messages.success(request, f"{vehicle.make} {vehicle.model_name} updated successfully!")
-
-    return redirect('profile')
 @login_required
 def log_fuel(request, vehicle_id):
     vehicle = get_object_or_404(Vehicle, id=vehicle_id, owner=request.user)
@@ -945,39 +915,61 @@ def delete_history_item(request, item_type, item_id):
     
     # 3. Stay on history page
     return redirect('history')
+
 @login_required
 def profile(request):
-    if request.method == 'POST':
-        # --- FIX: ADD request.FILES HERE ---
-        # Without request.FILES, the uploaded image is ignored!
+    if request.method == 'POST' and 'username' in request.POST:
         user_form = UserUpdateForm(request.POST, request.FILES, instance=request.user)
-        
         if user_form.is_valid():
             user_form.save()
-            
-            # Email Notification Logic (Kept from your original code)
-            subject = 'FuelPulse: Profile Updated Successfully'
-            message = f"Hello {request.user.username},\n\nYour profile details have been successfully updated."
-            
-            try:
-                send_mail(
-                    subject,
-                    message,
-                    settings.DEFAULT_FROM_EMAIL,
-                    [request.user.email],
-                    fail_silently=False,
-                )
-                messages.success(request, "Profile updated successfully!")
-            except Exception:
-                messages.warning(request, "Profile updated, but email failed to send.")
-
+            messages.success(request, 'Your profile has been updated!')
             return redirect('profile')
     else:
         user_form = UserUpdateForm(instance=request.user)
     
-    user_vehicles = Vehicle.objects.filter(owner=request.user, is_active=True)
-    context = {'vehicles': user_vehicles, 'user_form': user_form}
-    return render(request, 'core/profile.html', context)
+    vehicles = Vehicle.objects.filter(owner=request.user)
+    return render(request, 'core/profile.html', {
+        'user_form': user_form,
+        'vehicles': vehicles
+    })
+
+
+@login_required
+def update_vehicle_docs(request, vehicle_id):
+    """
+    Updates vehicle document expiry dates and ownership type.
+    Redirects the user back to the page they initiated the request from.
+    """
+    if request.method == 'POST':
+        vehicle = get_object_or_404(Vehicle, id=vehicle_id, owner=request.user)
+        
+        # Update fields from POST data
+        vehicle.ownership_type = request.POST.get('ownership_type', vehicle.ownership_type)
+        
+        # Capture date strings from the form
+        insurance = request.POST.get('insurance_expiry')
+        pollution = request.POST.get('pollution_expiry')
+        fitness = request.POST.get('fitness_expiry')
+        
+        # Update only if dates are provided (to avoid clearing existing dates accidentally)
+        if insurance:
+            vehicle.insurance_expiry = insurance
+        if pollution:
+            vehicle.pollution_expiry = pollution
+        if fitness:
+            vehicle.fitness_expiry = fitness
+        
+        vehicle.save()
+        messages.success(request, f"Documents for {vehicle.license_plate} updated successfully!")
+        
+        # SMART REDIRECT: Go back to the page the user came from (Stats or Profile)
+        # fallback to 'profile' if the referer is missing
+        return redirect(request.META.get('HTTP_REFERER', 'profile'))
+    
+    return redirect('profile')
+
+    
+
 # core/admin_views.py
 from django.contrib.auth.decorators import login_required, user_passes_test # <--- You likely added this
 from django.shortcuts import render, redirect, get_object_or_404
