@@ -1,0 +1,336 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    :root {
+        --app-bg: #000000;
+        --card-bg: #0a0a0a;
+        --accent-cyan: #00e5ff;
+        --accent-purple: #7042f8;
+        --text-dim: #94a3b8;
+        --pure-white: #ffffff;
+        --border-color: #1a1a1a;
+    }
+
+    body {
+        background-color: var(--app-bg) !important;
+        color: var(--pure-white);
+        font-family: 'Inter', sans-serif;
+    }
+
+    /* --- Search Section Container --- */
+    .search-wrapper {
+        background: var(--card-bg);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 28px;
+        padding: 50px 40px;
+        max-width: 1050px;
+        margin: 40px auto;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.7);
+    }
+
+    .search-wrapper::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
+    }
+
+    .search-title {
+        font-size: 2.6rem;
+        font-weight: 800;
+        background: linear-gradient(90deg, #5de0ff, #9ba1ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 10px;
+    }
+
+    .search-subtitle {
+        color: var(--text-dim);
+        font-size: 1.1rem;
+        margin-bottom: 40px;
+    }
+
+    /* --- Animated Track --- */
+    .track-line {
+        width: 100%;
+        height: 1px;
+        border-bottom: 1px dashed rgba(255, 255, 255, 0.15);
+        position: relative;
+        margin: 40px 0 60px 0;
+    }
+
+    .animated-car {
+        position: absolute;
+        bottom: 8px;
+        left: -50px;
+        animation: drive 12s infinite linear;
+        filter: drop-shadow(0 0 10px var(--accent-cyan));
+    }
+
+    @keyframes drive {
+        0% { left: -5%; }
+        100% { left: 105%; }
+    }
+
+    /* --- Form Styling --- */
+    .search-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr auto;
+        gap: 20px;
+        align-items: flex-end;
+        text-align: left;
+    }
+
+    .input-box {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .input-box label {
+        font-size: 0.75rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--text-dim);
+    }
+
+    .input-box input, .input-box select {
+        background: #000 !important;
+        border: 1px solid #222 !important;
+        color: #fff !important;
+        border-radius: 12px !important;
+        padding: 14px 16px !important;
+        outline: none;
+        font-size: 0.9rem;
+    }
+
+    .btn-find {
+        background: linear-gradient(135deg, #00d2ff 0%, #6e48ff 100%);
+        border: none;
+        color: white;
+        height: 54px;
+        padding: 0 35px;
+        border-radius: 14px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        transition: 0.3s;
+    }
+
+    .btn-find:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(110, 72, 255, 0.4);
+    }
+
+    /* --- Sassy Results Design --- */
+    .results-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 24px;
+        margin-top: 50px;
+        max-width: 1200px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .car-card {
+        background: #080808;
+        border: 1px solid var(--border-color);
+        border-radius: 20px;
+        padding: 24px;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        text-align: left;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .car-card:hover {
+        border-color: var(--accent-cyan);
+        transform: translateY(-8px);
+        box-shadow: 0 15px 30px rgba(0, 229, 255, 0.1);
+        background: #0d0d0d;
+    }
+
+    .car-icon-header {
+        width: 45px;
+        height: 45px;
+        background: rgba(0, 229, 255, 0.05);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+        color: var(--accent-cyan);
+        border: 1px solid rgba(0, 229, 255, 0.1);
+    }
+
+    .car-type-badge {
+        font-size: 0.65rem;
+        color: var(--accent-cyan);
+        text-transform: uppercase;
+        font-weight: 800;
+        letter-spacing: 1.5px;
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    .car-card h3 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin-bottom: 12px;
+        color: var(--pure-white);
+    }
+
+    .price-container {
+        display: flex;
+        align-items: baseline;
+        gap: 4px;
+        margin-bottom: 25px;
+    }
+
+    .price-text {
+        color: var(--pure-white);
+        font-size: 1.4rem;
+        font-weight: 800;
+    }
+
+    .price-label {
+        color: var(--text-dim);
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+
+    .btn-view-details {
+        background: #fff;
+        color: #000;
+        border: none;
+        width: 100%;
+        padding: 12px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 0.85rem;
+        text-align: center;
+        text-decoration: none;
+        display: block;
+        transition: 0.3s;
+    }
+
+    .btn-view-details:hover {
+        background: var(--accent-cyan);
+        color: #000;
+        transform: scale(1.02);
+    }
+
+    /* Decorative Glow on hover */
+    .car-card::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(0,229,255,0.03) 0%, transparent 70%);
+        opacity: 0;
+        transition: 0.5s;
+        pointer-events: none;
+    }
+
+    .car-card:hover::after {
+        opacity: 1;
+    }
+
+    @media (max-width: 992px) {
+        .search-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+    @media (max-width: 576px) {
+        .search-grid {
+            grid-template-columns: 1fr;
+        }
+        .search-title { font-size: 2rem; }
+    }
+</style>
+
+<div class="container py-5 text-center">
+    <div class="search-wrapper">
+        <h1 class="search-title">Find Your Dream Car</h1>
+        <p class="search-subtitle">Set your budget and preferences to discover the perfect ride.</p>
+
+        <div class="track-line">
+            <div class="animated-car">
+                <svg width="45" height="28" viewBox="0 0 24 24" fill="none">
+                    <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9L18.7 8.2c-.2-.5-.8-.8-1.3-.8H6.6c-.5 0-1.1.3-1.3.8l-1.8 2.9C2.7 11.3 2 12.1 2 13v3c0 .6.4 1 1 1h2m14 0a2 2 0 1 0-4 0 2 2 0 0 0 4 0ZM9 17a2 2 0 1 0-4 0 2 2 0 0 0 4 0Z" stroke="#00e5ff" stroke-width="2"/>
+                </svg>
+            </div>
+        </div>
+
+        <form method="POST">
+            {% csrf_token %}
+            <div class="search-grid">
+                <div class="input-box">
+                    <label>Min Price</label>
+                    {{ form.min_price }}
+                </div>
+                <div class="input-box">
+                    <label>Max Price</label>
+                    {{ form.max_price }}
+                </div>
+                <div class="input-box">
+                    <label>Vehicle Type</label>
+                    {{ form.vehicle_type }}
+                </div>
+                <button type="submit" class="btn-find">
+                    <i class="fas fa-search"></i> Find Cars
+                </button>
+            </div>
+        </form>
+    </div>
+
+    {% if search_performed %}
+    <div class="results-container">
+        {% for car in cars %}
+        <div class="car-card">
+            <!-- Icon Section -->
+            <div class="car-icon-header">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="1" y="3" width="15" height="13"></rect>
+                    <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+                    <circle cx="5.5" cy="18.5" r="2.5"></circle>
+                    <circle cx="18.5" cy="18.5" r="2.5"></circle>
+                </svg>
+            </div>
+
+            <!-- Content Section -->
+            <span class="car-type-badge">{{ car.type }}</span>
+            <h3 class="mb-1">{{ car.make }} {{ car.model }}</h3>
+            
+            <div class="price-container">
+                <span class="price-text">₹{{ car.price|slice:":-5" }}</span>
+                <span class="price-label">Lakh</span>
+            </div>
+
+            <!-- Action Section -->
+            <a href="{% url 'car_detail' car.id %}" class="btn-view-details">
+                View Details
+            </a>
+        </div>
+        {% empty %}
+        <div class="w-100 py-5 text-muted">
+            <i class="fas fa-ghost fa-2x mb-3"></i>
+            <p>No cars match your criteria. Try adjusting your budget.</p>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

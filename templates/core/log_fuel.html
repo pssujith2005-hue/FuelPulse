@@ -1,0 +1,239 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    /* --- SASSY LOG FUEL THEME (Blue/Black/White) --- */
+    :root {
+        --bg-pure: #000000;
+        --card-bg: #050505;
+        --glass-border: rgba(255, 255, 255, 0.15);
+        --sassy-blue: #3b82f6;
+        --gradient-blue: linear-gradient(135deg, #000000 0%, #1e3a8a 100%);
+        --text-glow: 0 0 10px rgba(59, 130, 246, 0.5);
+    }
+
+    body {
+        background-color: var(--bg-pure) !important;
+        font-family: 'Outfit', sans-serif;
+    }
+
+    /* --- ANIMATIONS --- */
+    @keyframes slideInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pump-pulse {
+        0% { transform: scale(1); filter: drop-shadow(0 0 5px rgba(59, 130, 246, 0.5)); }
+        50% { transform: scale(1.05); filter: drop-shadow(0 0 15px rgba(59, 130, 246, 0.8)); }
+        100% { transform: scale(1); filter: drop-shadow(0 0 5px rgba(59, 130, 246, 0.5)); }
+    }
+
+    @keyframes fuel-flow {
+        0% { height: 0; opacity: 0; }
+        50% { height: 20px; opacity: 1; }
+        100% { height: 0; opacity: 0; transform: translateY(20px); }
+    }
+
+    .animate-entry {
+        animation: slideInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        opacity: 0;
+    }
+
+    /* --- CARD STYLING --- */
+    .sassy-card {
+        background-color: var(--card-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 20px;
+        padding: 2.5rem;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+    }
+
+    /* Ambient Blue Glow */
+    .sassy-card::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, rgba(0,0,0,0) 70%);
+        transform: rotate(45deg);
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    /* --- FORM ELEMENTS --- */
+    .form-label-sassy {
+        color: #94a3b8;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-control-sassy {
+        background-color: #000 !important;
+        border: 1px solid rgba(255,255,255,0.2) !important;
+        color: white !important;
+        border-radius: 12px;
+        padding: 12px 15px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .form-control-sassy:focus {
+        border-color: var(--sassy-blue) !important;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25) !important;
+        background-color: #050505 !important;
+    }
+
+    /* --- BUTTONS --- */
+    .btn-sassy-primary {
+        background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+        border: none;
+        color: white;
+        font-weight: 700;
+        padding: 12px;
+        border-radius: 12px;
+        transition: 0.3s;
+        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+    }
+
+    .btn-sassy-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(59, 130, 246, 0.6);
+        color: white;
+    }
+
+    .btn-sassy-outline {
+        background: transparent;
+        border: 1px solid rgba(255,255,255,0.2);
+        color: #cbd5e1;
+        font-weight: 600;
+        padding: 12px;
+        border-radius: 12px;
+        transition: 0.3s;
+    }
+
+    .btn-sassy-outline:hover {
+        border-color: white;
+        color: white;
+        background: rgba(255,255,255,0.05);
+    }
+
+    /* --- ANIMATION CONTAINER --- */
+    .fuel-anim-container {
+        position: relative;
+        height: 80px;
+        width: 80px;
+        margin-right: 1.5rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .pump-icon {
+        font-size: 3rem;
+        background: linear-gradient(180deg, #ffffff, #3b82f6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: pump-pulse 3s ease-in-out infinite;
+        z-index: 2;
+    }
+
+    .fuel-drop {
+        position: absolute;
+        bottom: 10px;
+        right: 15px; /* Adjust based on icon shape */
+        width: 4px;
+        background-color: #3b82f6;
+        border-radius: 2px;
+        animation: fuel-flow 1.5s infinite;
+        z-index: 1;
+    }
+
+</style>
+
+<div class="row justify-content-center animate-entry">
+    <div class="col-md-6 col-lg-5">
+        <div class="sassy-card">
+            
+            <!-- HEADER WITH ANIMATION -->
+            <div class="d-flex align-items-center mb-5 position-relative" style="z-index: 1;">
+                <div class="fuel-anim-container">
+                    <i class="fas fa-gas-pump pump-icon"></i>
+                    <div class="fuel-drop"></div>
+                </div>
+                <div>
+                    <h3 class="text-white fw-bold mb-1">Log Fuel</h3>
+                    <p class="text-white-50 small mb-0">
+                        {{ vehicle.make }} {{ vehicle.model_name }} 
+                        <span class="badge bg-dark border border-secondary ms-2 text-white">{{ vehicle.license_plate }}</span>
+                    </p>
+                </div>
+            </div>
+
+            <form method="post" class="position-relative" style="z-index: 1;">
+                {% csrf_token %}
+                
+                <!-- Odometer -->
+                <div class="mb-4">
+                    <label class="form-label-sassy">Current Odometer (km)</label>
+                    {{ form.odometer_reading }}
+                    <div class="d-flex justify-content-between mt-2 px-1">
+                        <small class="text-muted" style="font-size: 0.75rem;">Last recorded:</small>
+                        <small class="text-warning fw-bold" style="font-size: 0.8rem;">{{ vehicle.current_odometer }} km</small>
+                    </div>
+                </div>
+
+                <!-- Liters & Cost Row -->
+                <div class="row g-3 mb-4">
+                    <div class="col-6">
+                        <label class="form-label-sassy">Liters Filled</label>
+                        {{ form.liters_filled }}
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label-sassy">Total Cost (₹)</label>
+                        {{ form.total_cost }}
+                    </div>
+                </div>
+
+                <!-- Date -->
+                <div class="mb-5">
+                    <label class="form-label-sassy">Date</label>
+                    {{ form.date }}
+                </div>
+
+                <!-- Actions -->
+                <div class="d-grid gap-3">
+                    <button type="submit" class="btn-sassy-primary">
+                        <i class="fas fa-save me-2"></i> Save Entry
+                    </button>
+                    <a href="{% url 'dashboard' %}" class="btn-sassy-outline text-center text-decoration-none">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Apply sassy classes to Django form widgets
+    document.addEventListener("DOMContentLoaded", function() {
+        const inputs = document.querySelectorAll('input, select, textarea');
+        inputs.forEach(input => {
+            input.classList.add('form-control-sassy');
+            // Remove default Bootstrap class if conflicting visually (optional)
+            input.classList.remove('form-control'); 
+            input.style.width = "100%";
+        });
+    });
+</script>
+
+{% endblock %}

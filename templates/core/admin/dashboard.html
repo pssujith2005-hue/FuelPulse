@@ -1,0 +1,225 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    /* --- SASSY ADMIN THEME: GREEN, WHITE, BLACK --- */
+    :root {
+        --bg-pure-black: #000000;
+        --card-bg: #080808;
+        --fuel-green: #22c55e;
+        --fuel-green-glow: rgba(34, 197, 94, 0.4);
+        --glass-border: rgba(255, 255, 255, 0.08);
+        --text-main: #ffffff;
+        --text-muted: #a1a1aa;
+        --accent-gradient: linear-gradient(135deg, #22c55e 0%, #166534 100%);
+    }
+
+    body, .main-content {
+        background-color: var(--bg-pure-black) !important;
+        color: var(--text-main);
+        font-family: 'Outfit', sans-serif;
+        overflow-x: hidden;
+    }
+
+    /* --- PAGE HEADER & ANIMATIONS --- */
+    .admin-header {
+        position: relative;
+        padding: 4rem 0;
+        text-align: center;
+        background: radial-gradient(circle at center, #16653433 0%, transparent 70%);
+    }
+
+    .pulse-icon {
+        font-size: 3rem;
+        color: var(--fuel-green);
+        filter: drop-shadow(0 0 15px var(--fuel-green));
+        animation: pulseEffect 2s infinite;
+        margin-bottom: 1.5rem;
+    }
+
+    @keyframes pulseEffect {
+        0% { transform: scale(1); opacity: 0.8; }
+        50% { transform: scale(1.1); opacity: 1; filter: drop-shadow(0 0 25px var(--fuel-green)); }
+        100% { transform: scale(1); opacity: 0.8; }
+    }
+
+    /* --- CARDS --- */
+    .admin-card {
+        background: var(--card-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 24px;
+        padding: 2.5rem;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .admin-card:hover {
+        transform: translateY(-12px);
+        border-color: var(--fuel-green);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8), 0 0 20px rgba(34, 197, 94, 0.15);
+    }
+
+    /* Green Top Accent */
+    .admin-card::after {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 4px;
+        background: var(--accent-gradient);
+        opacity: 0.5;
+        transition: 0.3s;
+    }
+    .admin-card:hover::after { opacity: 1; height: 6px; }
+
+    .card-icon-box {
+        width: 80px;
+        height: 80px;
+        border-radius: 20px;
+        background: #111;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+        border: 1px solid var(--glass-border);
+        transition: 0.3s;
+    }
+
+    .admin-card:hover .card-icon-box {
+        background: var(--fuel-green);
+        color: black !important;
+        transform: rotate(-10deg) scale(1.1);
+    }
+    
+    .admin-card:hover .card-icon-box i { color: black !important; }
+
+    /* --- BUTTONS --- */
+    .btn-admin {
+        background: var(--text-main);
+        color: black;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        padding: 12px 30px;
+        border-radius: 100px;
+        border: none;
+        transition: 0.3s;
+        margin-top: auto;
+        width: 100%;
+    }
+
+    .btn-admin:hover {
+        background: var(--fuel-green);
+        color: black;
+        box-shadow: 0 0 20px var(--fuel-green-glow);
+        transform: scale(1.05);
+    }
+
+    /* --- DECORATIVE ANIMATIONS --- */
+    .bg-road {
+        position: fixed;
+        bottom: 10%;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background: repeating-linear-gradient(90deg, transparent, transparent 20px, var(--fuel-green) 20px, var(--fuel-green) 40px);
+        opacity: 0.1;
+        z-index: -1;
+    }
+
+    .moving-car-silhouette {
+        position: fixed;
+        bottom: 11%;
+        left: -100px;
+        font-size: 2rem;
+        color: var(--fuel-green);
+        opacity: 0.15;
+        animation: driveBy 15s linear infinite;
+        z-index: -1;
+    }
+
+    @keyframes driveBy {
+        from { left: -5%; }
+        to { left: 105%; }
+    }
+
+    .fade-in {
+        animation: fadeIn 1s ease-out forwards;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<!-- BACKGROUND ANIMATIONS -->
+<div class="bg-road"></div>
+<i class="fas fa-car-side moving-car-silhouette"></i>
+
+<div class="container py-5">
+    <!-- HEADER -->
+    <header class="admin-header fade-in">
+        <i class="fas fa-gas-pump pulse-icon"></i>
+        <h1 class="display-3 fw-bold text-white mb-2">FuelPulse <span style="color: var(--fuel-green);">HQ</span></h1>
+        <p class="text-muted fs-5 mx-auto" style="max-width: 600px;">
+            System Administration & Fleet Intelligence Command Center.
+        </p>
+    </header>
+
+    <!-- ADMIN OPTIONS GRID -->
+    <div class="row g-5 justify-content-center mt-2">
+        
+        <!-- Manage Users -->
+        <div class="col-lg-5 col-md-6 fade-in" style="animation-delay: 0.2s;">
+            <div class="admin-card">
+                <div class="card-icon-box">
+                    <i class="fas fa-users-cog fa-2x text-white"></i>
+                </div>
+                <h3 class="fw-bold mb-3">User Management</h3>
+                <p class="text-muted mb-4">
+                    Monitor system traffic, audit user accounts, and manage permissions or account statuses.
+                </p>
+                <div class="stats-mini d-flex gap-3 mb-4">
+                    <small class="badge bg-dark border border-secondary text-success">Active Auth Engine</small>
+                </div>
+                <a href="{% url 'manage_users' %}" class="btn btn-admin text-decoration-none d-flex align-items-center justify-content-center">
+                    Manage Access <i class="fas fa-chevron-right ms-2 small"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- Add New Launched Car -->
+        <div class="col-lg-5 col-md-6 fade-in" style="animation-delay: 0.4s;">
+            <div class="admin-card">
+                <div class="card-icon-box">
+                    <i class="fas fa-rocket fa-2x text-white"></i>
+                </div>
+                <h3 class="fw-bold mb-3">Add New Cars</h3>
+                <p class="text-muted mb-4">
+                    Push new vehicle launches to the global recommendation engine. Keep the database current with 2026 models.
+                </p>
+                <div class="stats-mini d-flex gap-3 mb-4">
+                    <small class="badge bg-dark border border-secondary text-warning">Dynamic DB Link</small>
+                </div>
+                <a href="{% url 'add_new_car' %}" class="btn btn-admin text-decoration-none d-flex align-items-center justify-content-center">
+                    Add new cars<i class="fas fa-plus ms-2 small"></i>
+                </a>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- FOOTER STATUS -->
+    <footer class="text-center mt-5 pt-5 fade-in" style="animation-delay: 0.6s;">
+        <div class="d-inline-flex align-items-center gap-2 px-4 py-2 rounded-pill bg-dark border border-secondary opacity-50">
+            <span class="p-1 bg-success rounded-circle shadow-sm"></span>
+            <small class="text-white-50">System Secure: Admin Session Active</small>
+        </div>
+    </footer>
+</div>
+{% endblock %}

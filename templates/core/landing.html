@@ -1,0 +1,393 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FuelPulse | Intelligent Fleet Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* PURE BLACK PALETTE */
+            --bg-deep: #000000;  /* True Black */
+            --bg-surface: #000000; /* Keeping surfaces black for that OLED look */
+            --glass-border: rgba(255, 255, 255, 0.15); /* Slightly brighter border for contrast */
+            
+            /* Sassy Accents (unchanged to keep it attractive) */
+            --accent-gradient: linear-gradient(135deg, #06b6d4 0%, #8b5cf6 100%);
+            --text-glow: linear-gradient(90deg, #22d3ee, #c084fc);
+            --neon-glow: 0 0 25px rgba(139, 92, 246, 0.4);
+        }
+
+        body {
+            background-color: var(--bg-deep);
+            color: #ffffff;
+            font-family: 'Outfit', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* --- BACKGROUND FX --- */
+        /* Reduced size so it doesn't wash out the black background */
+        .ambient-glow {
+            position: fixed;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.12) 0%, rgba(0,0,0,0) 70%);
+            top: -150px;
+            left: 50%;
+            transform: translateX(-50%);
+            filter: blur(100px);
+            z-index: -1;
+            animation: pulse-ambient 10s infinite alternate;
+        }
+
+        @keyframes pulse-ambient {
+            0% { opacity: 0.3; transform: translateX(-50%) scale(1); }
+            100% { opacity: 0.6; transform: translateX(-50%) scale(1.2); }
+        }
+
+        /* --- NAVBAR --- */
+        .navbar {
+            background: rgba(0, 0, 0, 0.8); /* Pure black glass */
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 1.2rem 0;
+        }
+        .navbar-brand { font-weight: 800; font-size: 1.5rem; letter-spacing: -0.5px; }
+        .nav-link { color: #888; font-weight: 500; transition: 0.3s; }
+        .nav-link:hover { color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.5); }
+
+        /* --- HERO SECTION --- */
+        .hero {
+            padding: 8rem 0 6rem;
+            position: relative;
+            background-color: #000000;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 16px;
+            background: rgba(0, 0, 0, 1);
+            border: 1px solid #8b5cf6; /* Sharp Violet Border */
+            border-radius: 50px;
+            color: #c084fc;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.2);
+        }
+
+        .hero-title {
+            font-size: 5rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            color: #ffffff; /* Pure White text for max contrast */
+        }
+
+        .gradient-text {
+            background: var(--text-glow);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* --- BUTTONS --- */
+        .btn-sassy {
+            background: var(--accent-gradient);
+            border: none;
+            color: white;
+            padding: 15px 40px;
+            font-weight: 700;
+            border-radius: 50px;
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
+            transition: 0.4s;
+            box-shadow: var(--neon-glow);
+        }
+        .btn-sassy::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, #8b5cf6 0%, #06b6d4 100%);
+            opacity: 0;
+            z-index: -1;
+            transition: opacity 0.4s;
+        }
+        .btn-sassy:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 40px rgba(6, 182, 212, 0.5); /* Stronger glow on hover */
+        }
+        .btn-sassy:hover::before { opacity: 1; }
+
+        /* --- ANIMATION CONTAINER --- */
+        .animation-container {
+            position: relative;
+            height: 450px;
+            margin-top: 5rem;
+            perspective: 1200px;
+        }
+
+        /* Base Card Style - Darker for Black BG */
+        .float-card {
+            position: absolute;
+            background: #000000; /* Solid Black */
+            border: 1px solid rgba(255, 255, 255, 0.2); /* High contrast border */
+            border-radius: 24px;
+            box-shadow: 0 0 30px rgba(0,0,0,1); /* Deep shadow to pop off bg */
+            transition: 0.3s;
+        }
+
+        /* 1. Central TCO Dashboard */
+        .card-main {
+            width: 500px;
+            height: 300px;
+            left: 50%;
+            top: 50px;
+            transform: translateX(-50%) rotateX(10deg);
+            z-index: 2;
+            padding: 25px;
+            border-top: 1px solid rgba(255,255,255,0.3);
+            animation: float-main 6s ease-in-out infinite;
+        }
+        
+        /* 2. Fuel Log Satellite */
+        .card-fuel {
+            width: 180px;
+            height: 110px;
+            left: calc(50% - 380px);
+            top: 80px;
+            z-index: 3;
+            padding: 15px;
+            border-left: 3px solid #06b6d4;
+            animation: float-sat-1 7s ease-in-out infinite;
+        }
+
+        /* 3. Maintenance Alert Satellite */
+        .card-alert {
+            width: 200px;
+            height: 100px;
+            right: calc(50% - 400px);
+            bottom: 100px;
+            z-index: 3;
+            padding: 15px;
+            border-right: 3px solid #f43f5e;
+            animation: float-sat-2 8s ease-in-out infinite;
+        }
+
+        /* 4. Savings Badge Satellite */
+        .card-savings {
+            width: 160px;
+            top: -20px;
+            right: calc(50% - 320px);
+            background: #000000;
+            border: 1px solid #10b981;
+            padding: 12px;
+            text-align: center;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            color: #10b981;
+            z-index: 4;
+            animation: float-sat-3 5s ease-in-out infinite;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.2);
+        }
+
+        /* Mock UI inside cards */
+        .mock-graph {
+            height: 120px;
+            margin-top: 20px;
+            background: linear-gradient(180deg, rgba(139, 92, 246, 0.1) 0%, transparent 100%);
+            border-bottom: 2px solid #8b5cf6;
+            position: relative;
+        }
+        .mock-bar {
+            position: absolute; bottom: 0; width: 20px; background: #333; border-radius: 4px 4px 0 0;
+        }
+
+        /* Animation Keyframes */
+        @keyframes float-main {
+            0%, 100% { transform: translateX(-50%) rotateX(10deg) translateY(0); }
+            50% { transform: translateX(-50%) rotateX(10deg) translateY(-15px); }
+        }
+        @keyframes float-sat-1 {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        @keyframes float-sat-2 {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(25px); }
+        }
+        @keyframes float-sat-3 {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-10px) scale(1.05); }
+        }
+
+        /* --- FEATURE SECTION (Pure Black) --- */
+        #features {
+            background-color: #000000;
+            border-top: 1px solid #111;
+        }
+
+        .glass-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .feature-card {
+            background: #000000;
+            border: 1px solid #222;
+            padding: 30px;
+            border-radius: 20px;
+            transition: 0.3s;
+        }
+        .feature-card:hover {
+            border-color: #8b5cf6;
+            background: #050505;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px rgba(139, 92, 246, 0.1);
+        }
+        .icon-glow {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            background: var(--text-glow);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="ambient-glow"></div>
+
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container">
+            <a class="navbar-brand text-white d-flex align-items-center gap-2" href="#">
+                <i class="fas fa-bolt text-info"></i> FuelPulse
+            </a>
+            <button class="navbar-toggler border-0 text-white" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <div class="d-flex gap-4 align-items-center">
+                    <a href="#features" class="nav-link">Features</a>
+                    <a href="#howitworks" class="nav-link">How it Works</a>
+                    <a href="{% url 'login' %}" class="text-white text-decoration-none fw-bold small">Log In</a>
+                    <a href="{% url 'signup' %}" class="btn-sassy py-2 px-4 small">Sign Up</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero text-center">
+        <div class="container">
+            <div class="hero-badge">
+                <i class="fas fa-magic me-2"></i> Fleet Intelligence
+            </div>
+
+            <h1 class="hero-title">
+                Stop Guessing.<br>
+                Start <span class="gradient-text">Optimizing.</span>
+            </h1>
+
+            <p class="text-secondary fs-5 mb-5 mx-auto" style="max-width: 600px;">
+                The smart way to track TCO, predict maintenance, and cut fuel costs.
+                Compare actuals vs. targets in real-time.
+            </p>
+
+            <a href="{% url 'signup' %}" class="btn-sassy">Get Started <i class="fas fa-arrow-right ms-2"></i></a>
+
+            <div class="animation-container d-none d-lg-block">
+                
+                <div class="float-card card-savings">
+                    <i class="fas fa-check-circle me-1"></i> Saved ₹4,200
+                </div>
+
+                <div class="float-card card-main">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold mb-0 text-white">Efficiency Trends</h5>
+                        <span class="badge bg-black border border-secondary text-info">Live Data</span>
+                    </div>
+                    <div class="d-flex align-items-end gap-3 mb-2">
+                        <h2 class="fw-bold text-white mb-0">₹ 4.2<small class="fs-6 text-secondary">/km</small></h2>
+                        <small class="text-success fw-bold"><i class="fas fa-arrow-down"></i> 12% below target</small>
+                    </div>
+                    <div class="mock-graph d-flex justify-content-around px-3">
+                        <div class="mock-bar" style="height: 40%; left: 10%;"></div>
+                        <div class="mock-bar" style="height: 60%; left: 30%;"></div>
+                        <div class="mock-bar" style="height: 35%; left: 50%;"></div>
+                        <div class="mock-bar" style="height: 80%; left: 70%; background: #8b5cf6; box-shadow: 0 0 15px #8b5cf6;"></div>
+                        <div class="mock-bar" style="height: 55%; left: 90%;"></div>
+                    </div>
+                </div>
+
+                <div class="float-card card-fuel">
+                    <div class="d-flex gap-3 align-items-center">
+                        <div class="bg-black border border-info p-2 rounded text-info"><i class="fas fa-gas-pump"></i></div>
+                        <div>
+                            <div class="small text-secondary">Refuel</div>
+                            <div class="fw-bold text-white">22.5 L</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="float-card card-alert">
+                    <div class="d-flex gap-3 align-items-start">
+                        <div class="bg-black border border-danger p-2 rounded text-danger"><i class="fas fa-exclamation-triangle"></i></div>
+                        <div>
+                            <div class="fw-bold text-white">Service Due</div>
+                            <div class="small text-secondary mt-1">Odometer limit reached.</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            </div>
+    </section>
+
+    <section id="features" class="py-5">
+        <div class="container py-5">
+            <h2 class="text-center fw-bold text-white mb-5">Your Fleet, <span class="gradient-text">Upgraded.</span></h2>
+            
+            <div class="glass-grid">
+                <div class="feature-card text-center">
+                    <i class="fas fa-calculator icon-glow"></i>
+                    <h5 class="text-white fw-bold">"What-If" Engine</h5>
+                    <p class="text-secondary small">Compare costs vs targets instantly. See exactly where you're losing money.</p>
+                </div>
+                <div class="feature-card text-center">
+                    <i class="fas fa-chart-line icon-glow"></i>
+                    <h5 class="text-white fw-bold">True TCO</h5>
+                    <p class="text-secondary small">Fuel is just the start. We track service, tyres, and docs for the real cost.</p>
+                </div>
+                <div class="feature-card text-center">
+                    <i class="fas fa-car-crash icon-glow"></i>
+                    <h5 class="text-white fw-bold"> Maintenance</h5>
+                    <p class="text-secondary small">service dates based on your usage, preventing breakdowns.</p>
+                </div>
+                <div class="feature-card text-center">
+                    <i class="fas fa-file-invoice-dollar icon-glow"></i>
+                    <h5 class="text-white fw-bold">Smart Logging</h5>
+                    <p class="text-secondary small">Scan receipts or use quick-log forms. We handle the math and history.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="py-5 text-center" style="border-top: 1px solid var(--glass-border); background: #000;">
+        <h3 class="fw-bold text-white mb-4">Ready to optimize?</h3>
+        <a href="{% url 'signup' %}" class="btn-sassy">Create Free Account</a>
+        <div class="mt-5 text-muted small">
+            &copy; 2026 FuelPulse. 
+            <a href="{% url 'admin_login' %}" class="text-decoration-none text-muted ms-2 opacity-50">Admin</a>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

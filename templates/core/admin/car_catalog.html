@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    :root {
+        --glass-bg: rgba(15, 15, 15, 0.95);
+        --glass-border: rgba(255, 255, 255, 0.05);
+    }
+    .catalog-card {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 18px;
+        padding: 24px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    .catalog-card.is-hidden {
+        opacity: 0.5;
+        border-style: dashed;
+        filter: grayscale(0.5);
+    }
+    .catalog-card:hover {
+        border-color: #22c55e;
+        transform: translateY(-4px);
+    }
+    .btn-action {
+        padding: 10px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 0.75rem;
+        width: 100%;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .status-pill {
+        font-size: 0.6rem;
+        padding: 4px 10px;
+        border-radius: 100px;
+        font-weight: 900;
+        letter-spacing: 1px;
+    }
+</style>
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-end border-bottom border-secondary pb-4 mb-5">
+        <div>
+            <a href="{% url 'admin_dashboard' %}" class="text-success text-decoration-none small mb-2 d-inline-block">
+                <i class="fas fa-chevron-left me-1"></i> Dashboard HQ
+            </a>
+            <h1 class="display-6 fw-bold text-white mb-0">Market Inventory</h1>
+        </div>
+        <a href="{% url 'add_new_car' %}" class="btn btn-success rounded-pill px-4 fw-bold">
+            <i class="fas fa-plus me-2"></i> Add details of newly launched car
+        </a>
+    </div>
+
+    <div class="row g-4">
+        <!-- DATABASE MANAGED ASSETS -->
+        {% for car in db_cars %}
+        <div class="col-md-4">
+            <div class="catalog-card {% if not car.is_active %}is-hidden{% endif %}">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-success small fw-bold">DB Asset</span>
+                    {% if car.is_active %}
+                    <span class="status-pill bg-success text-white">LIVE ENGINE</span>
+                    {% else %}
+                    <span class="status-pill bg-warning text-dark">DORMANT</span>
+                    {% endif %}
+                </div>
+                
+                <h3 class="h5 text-white fw-bold mb-1">{{ car.make }} {{ car.model }}</h3>
+                <p class="text-muted small mb-4">₹{{ car.price_lakhs }}L • {{ car.car_type }}</p>
+
+                <div class="mt-auto pt-3">
+                    <div class="d-flex gap-2">
+                        <form action="{% url 'toggle_car_visibility' car.id %}" method="POST" class="flex-grow-1">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-action {% if car.is_active %}btn-outline-warning{% else %}btn-success{% endif %}">
+                                {% if car.is_active %}Hide from Users{% else %}Make Live{% endif %}
+                            </button>
+                        </form>
+                        <form action="{% url 'delete_car_entry' car.id %}" method="POST" onsubmit="return confirm('Permanently destroy this market entry?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-action btn-outline-danger" style="width: 44px;">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <p class="text-muted">No market-added assets currently in the database.</p>
+        </div>
+        {% endfor %}
+
+        <!-- CORE SYSTEM ASSETS -->
+        <div class="col-12 mt-5">
+            <h5 class="text-muted small text-uppercase fw-bold"><i class="fas fa-shield-alt me-2"></i>Core System Presets (Read-Only)</h5>
+        </div>
+        {% for car in budget_cars %}
+        <div class="col-md-4">
+            <div class="catalog-card opacity-25">
+                <span class="text-muted x-small fw-bold mb-3">Static Resource</span>
+                <h3 class="h6 text-white fw-bold mb-0">{{ car.make }}</h3>
+                <p class="text-muted small mb-0">{{ car.model }}</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

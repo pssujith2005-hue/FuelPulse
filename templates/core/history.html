@@ -1,0 +1,256 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    /* --- SASSY HISTORY THEME (Blue/Black/White) --- */
+    :root {
+        --bg-pure: #000000;
+        --card-bg: #050505;
+        --glass-border: rgba(255, 255, 255, 0.15);
+        --sassy-blue: #3b82f6;
+        --gradient-blue: linear-gradient(135deg, #000000 0%, #1e3a8a 100%);
+        --gradient-icon-trip: linear-gradient(135deg, #0ea5e9, #38bdf8);
+        --gradient-icon-fuel: linear-gradient(135deg, #f59e0b, #fbbf24);
+        --gradient-icon-expense: linear-gradient(135deg, #ef4444, #f87171);
+        --text-glow: 0 0 10px rgba(59, 130, 246, 0.5);
+    }
+
+    body {
+        background-color: var(--bg-pure) !important;
+        font-family: 'Outfit', sans-serif;
+    }
+
+    /* --- ANIMATIONS --- */
+    @keyframes slideInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate-entry {
+        animation: slideInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        opacity: 0;
+    }
+
+    /* --- FILTERS BAR --- */
+    .filters-bar {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--glass-border);
+        border-radius: 16px;
+        padding: 1rem;
+        backdrop-filter: blur(10px);
+        margin-bottom: 2rem;
+    }
+
+    .form-control-sassy, .form-select-sassy {
+        background-color: #000 !important;
+        border: 1px solid rgba(255,255,255,0.2) !important;
+        color: white !important;
+        border-radius: 8px;
+        font-size: 0.9rem;
+    }
+    .form-control-sassy:focus, .form-select-sassy:focus {
+        border-color: var(--sassy-blue) !important;
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25) !important;
+    }
+
+    /* --- HISTORY CARDS --- */
+    .history-card {
+        background-color: var(--card-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 16px;
+        padding: 1.25rem;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 1rem;
+    }
+
+    .history-card:hover {
+        transform: translateX(5px);
+        border-color: rgba(255, 255, 255, 0.3);
+        background-color: rgba(255, 255, 255, 0.02);
+    }
+
+    /* Left Border Indicators */
+    .border-type-trip { border-left: 4px solid #0ea5e9; }
+    .border-type-fuel { border-left: 4px solid #f59e0b; }
+    .border-type-expense { border-left: 4px solid #ef4444; }
+
+    /* Icon Containers */
+    .icon-wrapper {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        color: white;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    }
+    .bg-grad-trip { background: var(--gradient-icon-trip); }
+    .bg-grad-fuel { background: var(--gradient-icon-fuel); }
+    .bg-grad-expense { background: var(--gradient-icon-expense); }
+
+    /* Typography */
+    .item-title {
+        font-weight: 700;
+        color: white;
+        font-size: 1.05rem;
+        margin-bottom: 2px;
+    }
+    .item-meta {
+        color: #94a3b8;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    /* Action Buttons */
+    .btn-action-icon {
+        color: #64748b;
+        transition: 0.3s;
+        padding: 8px;
+        border-radius: 50%;
+    }
+    .btn-action-icon:hover {
+        background-color: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+    }
+
+    /* Empty State */
+    .empty-state-icon {
+        background: linear-gradient(135deg, #1e293b, #0f172a);
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+
+</style>
+
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        
+        <!-- HEADER & FILTERS -->
+        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-end mb-4 gap-3 animate-entry">
+            <div>
+                <h2 class="text-white fw-bold mb-1" style="text-shadow: 0 0 20px rgba(59,130,246,0.3);">Activity History</h2>
+                <p class="text-white-50 small mb-0">Track and manage your fleet logs.</p>
+            </div>
+            
+            <div class="filters-bar w-100 w-lg-auto">
+                <form method="get" class="d-flex flex-wrap align-items-end gap-3">
+                    
+                    <div class="flex-grow-1 flex-md-grow-0">
+                        <label class="text-muted small fw-bold text-uppercase mb-1" style="font-size: 0.7rem; letter-spacing: 1px;">Period</label>
+                        <input type="month" name="filter_month" value="{{ filter_month }}" class="form-control form-control-sassy">
+                    </div>
+
+                    <div class="flex-grow-1 flex-md-grow-0">
+                        <label class="text-muted small fw-bold text-uppercase mb-1" style="font-size: 0.7rem; letter-spacing: 1px;">Category</label>
+                        <select name="filter_type" class="form-select form-select-sassy" style="min-width: 140px;">
+                            <option value="all" {% if filter_type == 'all' %}selected{% endif %}>All Activity</option>
+                            <option value="trip" {% if filter_type == 'trip' %}selected{% endif %}>Trips Only</option>
+                            <option value="fuel" {% if filter_type == 'fuel' %}selected{% endif %}>Fuel Logs</option>
+                            <option value="expense" {% if filter_type == 'expense' %}selected{% endif %}>Expenses</option>
+                        </select>
+                    </div>
+
+                    <div class="d-flex gap-2 ms-auto ms-md-0">
+                        <button type="submit" class="btn btn-primary fw-bold px-4" style="border-radius: 8px;">
+                            Filter
+                        </button>
+                        <a href="{% url 'history' %}" class="btn btn-outline-secondary" style="border-radius: 8px;" title="Reset Filters">
+                            <i class="fas fa-undo"></i>
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- TIMELINE LIST -->
+        {% if timeline %}
+            <div class="timeline">
+                {% for item in timeline %}
+                <div class="history-card border-type-{{ item.type }} animate-entry" style="animation-delay: {{ forloop.counter0|add:1|stringformat:'s' }}00ms;">
+                    <div class="d-flex justify-content-between align-items-center">
+                        
+                        <!-- Left: Icon & Details -->
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="icon-wrapper {% if item.type == 'trip' %}bg-grad-trip{% elif item.type == 'fuel' %}bg-grad-fuel{% else %}bg-grad-expense{% endif %}">
+                                {% if item.type == 'trip' %}
+                                    <i class="fas fa-route"></i>
+                                {% elif item.type == 'fuel' %}
+                                    <i class="fas fa-gas-pump"></i>
+                                {% else %}
+                                    <i class="fas fa-wallet"></i>
+                                {% endif %}
+                            </div>
+
+                            <div>
+                                <div class="item-title">
+                                    {% if item.type == 'trip' %}
+                                        Trip: {{ item.distance_km|floatformat:1 }} km
+                                    {% elif item.type == 'fuel' %}
+                                        Refuel: {{ item.liters_filled }} L
+                                    {% else %}
+                                        {{ item.expense_type }}
+                                    {% endif %}
+                                </div>
+                                <div class="item-meta">
+                                    <span class="text-white opacity-75">{{ item.vehicle.make }} {{ item.vehicle.model_name }}</span>
+                                    <span class="mx-1">•</span>
+                                    <span>
+                                        {% if item.date.date %}
+                                            {{ item.date.date|date:"M d, Y" }}
+                                        {% else %}
+                                            {{ item.date|date:"M d, Y" }}
+                                        {% endif %}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right: Cost & Actions -->
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="text-end d-none d-sm-block">
+                                {% if item.type == 'trip' %}
+                                    <span class="badge bg-dark border border-secondary text-info rounded-pill px-3">Logged</span>
+                                {% elif item.type == 'fuel' %}
+                                    <div class="text-warning fw-bold fs-5">- ₹{{ item.total_cost }}</div>
+                                {% else %}
+                                    <div class="text-danger fw-bold fs-5">- ₹{{ item.amount }}</div>
+                                {% endif %}
+                            </div>
+
+                            <a href="{% url 'delete_history_item' item.type item.id %}" 
+                               class="btn-action-icon" 
+                               onclick="return confirm('Are you sure you want to delete this record? This cannot be undone.');"
+                               title="Delete Record">
+                                <i class="fas fa-trash-alt"></i>
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <!-- EMPTY STATE -->
+            <div class="text-center py-5 animate-entry">
+                <div class="empty-state-icon">
+                    <i class="fas fa-search fa-2x text-secondary"></i>
+                </div>
+                <h5 class="text-white fw-bold">No Activity Found</h5>
+                <p class="text-muted small">We couldn't find any records for the selected filters.</p>
+                <a href="{% url 'history' %}" class="btn btn-sm btn-link text-decoration-none">Clear Filters</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

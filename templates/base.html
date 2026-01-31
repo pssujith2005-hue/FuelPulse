@@ -1,0 +1,553 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FuelPulse Dashboard</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    
+    <style>
+        /* --- SASSY GLOBAL THEME --- */
+        :root {
+            --bg-deep: #000000;
+            --sidebar-bg: #000000;
+            --border-glass: rgba(255, 255, 255, 0.15);
+            --text-main: #ffffff;
+            --text-muted: #f0f0f0; 
+            --accent-gradient: linear-gradient(120deg, #1e3a8a 0%, #3b82f6 50%, #ffffff 150%);
+            --neon-glow: 0 0 15px rgba(59, 130, 246, 0.4);
+            --hover-tint: rgba(255, 255, 255, 0.05);
+            --hover-border: rgba(255, 255, 255, 0.1);
+            --icon-hover: #60a5fa;
+            --icon-shadow: rgba(96, 165, 250, 0.6);
+            --logo-grad-start: #ffffff;
+            --logo-grad-end: #3b82f6;
+            --text-anim-grad: linear-gradient(300deg, #3b82f6, #ffffff, #111111, #3b82f6);
+        }
+
+        /* --- ADMIN THEME OVERRIDES (GREEN/WHITE/BLACK) --- */
+        body.admin-theme {
+            --accent-gradient: linear-gradient(135deg, #ffffff 0%, #22c55e 50%, #000000 100%);
+            --neon-glow: 0 0 20px rgba(34, 197, 94, 0.4);
+            --hover-tint: rgba(34, 197, 94, 0.1);
+            --hover-border: rgba(34, 197, 94, 0.3);
+            --icon-hover: #22c55e;
+            --icon-shadow: rgba(34, 197, 94, 0.6);
+            --logo-grad-start: #ffffff;
+            --logo-grad-end: #22c55e;
+            --text-anim-grad: linear-gradient(300deg, #22c55e, #ffffff, #000000, #22c55e);
+        }
+
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            font-family: 'Outfit', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* FORCE WHITE TEXT GLOBALLY */
+        h1, h2, h3, h4, h5, h6, p, span, div, li, td, th, label {
+            color: var(--text-main) !important;
+        }
+
+        .text-muted { color: var(--text-muted) !important; }
+
+        /* Bootstrap Overrides */
+        .card {
+            background-color: #111111;
+            border: 1px solid var(--border-glass);
+            color: var(--text-main);
+        }
+        .card-header, .card-footer {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-color: var(--border-glass);
+            color: var(--text-main);
+        }
+        .form-control, .form-select {
+            background-color: #1a1a1a;
+            border-color: var(--border-glass);
+            color: #ffffff !important;
+        }
+        .form-control:focus, .form-select:focus {
+            background-color: #222222;
+            color: #ffffff !important;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 0.25rem rgba(59, 130, 246, 0.25);
+        }
+        /* Admin Focus Color Override */
+        body.admin-theme .form-control:focus, body.admin-theme .form-select:focus {
+            border-color: #22c55e;
+            box-shadow: 0 0 0 0.25rem rgba(34, 197, 94, 0.25);
+        }
+
+        .form-control::placeholder { color: #aaaaaa; }
+        .table { --bs-table-color: var(--text-main); --bs-table-bg: transparent; }
+        a { color: #60a5fa; text-decoration: none; }
+        body.admin-theme a { color: #86efac; }
+        a:hover { color: #ffffff; }
+
+        /* --- SIDEBAR STYLING --- */
+        .sidebar {
+            position: fixed;
+            top: 0; bottom: 0; left: 0;
+            z-index: 100;
+            padding: 10px 0;
+            width: 260px;
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--border-glass);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 10px 0 30px rgba(0,0,0,0.5);
+        }
+
+        .brand-logo {
+            font-size: 2rem;
+            font-weight: 1000;
+            padding: 5px 20px 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            letter-spacing: -0.5px;
+            flex-shrink: 0;
+        }
+        
+        .brand-logo i {
+            background: linear-gradient(to bottom, var(--logo-grad-start), var(--logo-grad-end));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 1.6rem;
+            filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.6)); /* Default Shadow */
+        }
+        body.admin-theme .brand-logo i {
+             filter: drop-shadow(0 0 8px rgba(34, 197, 94, 0.6));
+        }
+
+        @keyframes sassy-gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .brand-text {
+            background: var(--text-anim-grad);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 900;
+            animation: sassy-gradient 4s ease infinite;
+        }
+
+        .nav-column {
+            flex-grow: 1;
+            padding: 0 10px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .nav-link {
+            color: var(--text-muted) !important;
+            font-weight: 500;
+            padding: 8px 12px !important;
+            border-radius: 10px;
+            margin-bottom: 2px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.85rem;
+            border: 1px solid transparent;
+        }
+        
+        /* Standard icons */
+        .nav-link > i {
+            width: 20px;
+            text-align: center;
+            transition: 0.3s;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+        }
+
+        .nav-link:hover {
+            color: white !important;
+            background: var(--hover-tint);
+            border-color: var(--hover-border);
+            transform: translateX(5px);
+        }
+        .nav-link:hover > i {
+            color: var(--icon-hover) !important;
+            text-shadow: 0 0 10px var(--icon-shadow);
+        }
+
+        .nav-link.active {
+            background: var(--accent-gradient) !important;
+            background-size: 200% auto !important;
+            color: black !important;
+            font-weight: 700;
+            box-shadow: var(--neon-glow);
+            border: none;
+        }
+        .nav-link.active i { color: black !important; }
+
+        .small.text-uppercase {
+            color: #94a3b8 !important;
+            font-size: 0.65rem;
+            letter-spacing: 1.2px;
+            margin-top: 10px;
+            margin-bottom: 4px;
+            padding-left: 12px;
+            font-weight: 800;
+        }
+
+        .sidebar-footer {
+            padding: 10px 15px;
+            border-top: 1px solid var(--border-glass);
+            background: rgba(0,0,0,0.5);
+            flex-shrink: 0;
+        }
+
+        .main-content {
+            margin-left: 260px;
+            padding: 40px;
+            min-height: 100vh;
+        }
+
+        /* --- AI SUPPORT BUTTON STYLING --- */
+        @keyframes spin-rainbow {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .ai-support-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .ai-logo-container {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Rainbow Animation pseudo-element */
+        .ai-logo-container::before {
+            content: '';
+            position: absolute;
+            inset: -2px; /* Border thickness */
+            border-radius: 50%;
+            background: conic-gradient(
+                #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8f00ff, #ff0000
+            );
+            animation: spin-rainbow 2s linear infinite;
+            z-index: -1;
+            filter: blur(1.5px);
+        }
+        
+        /* Mask to keep the center black */
+        .ai-logo-container::after {
+            content: '';
+            position: absolute;
+            inset: 2px;
+            background: #000;
+            border-radius: 50%;
+            z-index: -1;
+        }
+
+        .ai-logo-icon {
+            font-size: 0.9rem;
+            background: linear-gradient(45deg, #00d2ff, #3a7bd5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* --- PROFESSIONAL CENTERED CHAT WIDGET --- */
+        #chatBackdrop {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            z-index: 9998;
+        }
+
+        #chatWindow {
+            display: none; 
+            position: fixed; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%);
+            width: 500px; 
+            max-width: 95vw;
+            height: 600px;
+            max-height: 90vh;
+            z-index: 9999; 
+            background-color: rgba(10, 10, 10, 0.95); 
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8), 0 0 20px rgba(59, 130, 246, 0.3);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chat-header {
+            background: linear-gradient(135deg, #111 0%, #000 100%);
+            border-bottom: 1px solid var(--border-glass);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .chat-body-scroll {
+            flex-grow: 1;
+            overflow-y: auto;
+            background-color: #050505;
+            padding: 20px;
+        }
+
+        /* Scrollbar Styling */
+        .chat-body-scroll::-webkit-scrollbar { width: 8px; }
+        .chat-body-scroll::-webkit-scrollbar-track { background: #111; }
+        .chat-body-scroll::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+        .chat-body-scroll::-webkit-scrollbar-thumb:hover { background: #555; }
+
+    </style>
+</head>
+<body class="{% if user.is_superuser and '/admin-panel/' in request.path %}admin-theme{% endif %}">
+
+    <!-- BACKDROP FOR CHAT -->
+    <div id="chatBackdrop" onclick="toggleChat()"></div>
+
+    <!-- SIDEBAR -->
+    <nav class="sidebar">
+        <!-- BRAND LOGO -->
+        <div class="brand-logo">
+            <i class="fas fa-bolt"></i> <span class="brand-text">FuelPulse</span>
+        </div>
+        
+        <div class="nav-column">
+            {% if user.is_superuser and '/admin-panel/' in request.path %}
+                <div class="small text-uppercase" style="color: #bbf7d0 !important; border-bottom: 1px solid rgba(34,197,94,0.3); padding-bottom: 5px;">Admin Controls</div>
+                <a href="{% url 'admin_dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
+                    <i class="fas fa-tachometer-alt"></i> Command Center
+                </a>
+                <a href="{% url 'manage_users' %}" class="nav-link {% if request.resolver_match.url_name == 'manage_users' %}active{% endif %}">
+                    <i class="fas fa-users-cog"></i> Manage Users
+                </a>
+                <a href="{% url 'add_new_car' %}" class="nav-link {% if request.resolver_match.url_name == 'add_new_car' %}active{% endif %}">
+                    <i class="fas fa-rocket"></i> Add New Cars
+                </a>
+                <!-- NEW: Car Catalog Link -->
+                <a href="{% url 'car_catalog' %}" class="nav-link {% if request.resolver_match.url_name == 'car_catalog' %}active{% endif %}">
+                    <i class="fas fa-warehouse"></i> Live Car Catalog
+                </a>
+                 
+            {% else %}
+                <a href="{% url 'dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                    <i class="fas fa-th-large"></i> Dashboard
+                </a>
+                
+                <a href="{% url 'log_trip' %}" class="nav-link {% if request.resolver_match.url_name == 'log_trip' %}active{% endif %}">
+                    <i class="fas fa-location-arrow"></i> Log Trip
+                </a>
+                <a href="{% url 'log_expense' %}" class="nav-link {% if request.resolver_match.url_name == 'log_expense' %}active{% endif %}">
+                    <i class="fas fa-file-invoice-dollar"></i> Log Expense
+                </a>
+                <a href="{% url 'analytics_dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'analytics_dashboard' %}active{% endif %}">
+                    <i class="fas fa-chart-line"></i> Fleet Analytics
+                </a>
+                <a href="{% url 'history' %}" class="nav-link {% if request.resolver_match.url_name == 'history' %}active{% endif %}">
+                    <i class="fas fa-history"></i> History
+                </a>
+                <a href="{% url 'reports' %}" class="nav-link {% if request.resolver_match.url_name == 'reports' %}active{% endif %}">
+                    <i class="fas fa-chart-pie"></i> Reports
+                </a>
+                <a href="{% url 'profile' %}" class="nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+                    <i class="fas fa-user-circle"></i> Profile
+                </a>
+        
+            {% endif %}
+        </div>
+
+        <div class="sidebar-footer">
+            <!-- AI SUPPORT BUTTON WITH RAINBOW ANIMATION -->
+            <a href="#" class="nav-link" onclick="toggleChat()">
+                <div class="ai-support-wrapper">
+                    <div class="ai-logo-container">
+                        <i class="fas fa-robot ai-logo-icon"></i>
+                    </div>
+                    <span>AI Support</span>
+                </div>
+            </a>
+
+            <a href="javascript:void(0);" onclick="confirmLogout()" class="nav-link text-danger" style="margin-top: 5px;">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+            <form id="logout-form" action="{% url 'logout' %}" method="post" style="display: none;">
+                {% csrf_token %}
+            </form>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- CENTERED CHAT WIDGET -->
+    <div id="chatWindow" style="display: none;">
+        <div class="chat-header text-white">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-robot text-primary me-3 fs-4"></i>
+                <div>
+                    <h5 class="mb-0 fw-bold">FuelPulse AI</h5>
+                    <small class="text-secondary" style="font-size: 0.75rem;">Powered by Gemini</small>
+                </div>
+            </div>
+            <button onclick="toggleChat()" class="btn btn-sm btn-outline-secondary rounded-circle border-0 text-white">
+                <i class="fas fa-times fs-5"></i>
+            </button>
+        </div>
+        
+        <div id="chatMessages" class="chat-body-scroll">
+            <div class="text-muted small text-center mt-5">
+                <div class="mb-3">
+                    <i class="fas fa-sparkles fa-3x text-primary opacity-50"></i>
+                </div>
+                <h6 class="text-white">How can I help you today?</h6>
+                <p class="opacity-75">Ask about trips, maintenance, or vehicle stats.</p>
+            </div>
+        </div>
+
+        <div class="card-footer bg-dark border-top border-secondary p-3">
+            <div class="input-group">
+                <input type="text" id="userMsg" class="form-control bg-black text-white border-secondary" placeholder="Type your question..." style="border-radius: 10px 0 0 10px; padding: 12px;">
+                <button onclick="sendMessage()" class="btn btn-primary fw-bold" style="border-radius: 0 10px 10px 0; padding: 0 20px;">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script>
+        function confirmLogout() {
+            if (confirm("Are you sure you want to log out?")) {
+                document.getElementById('logout-form').submit();
+            }
+        }
+
+        function toggleChat() {
+            const chat = document.getElementById('chatWindow');
+            const backdrop = document.getElementById('chatBackdrop');
+            const isVisible = chat.style.display === 'flex'; // Check if it's currently flex (visible)
+
+            if (isVisible) {
+                chat.style.display = 'none';
+                backdrop.style.display = 'none';
+            } else {
+                chat.style.display = 'flex'; // Use flex to maintain layout
+                backdrop.style.display = 'block';
+                // Focus input when opened
+                setTimeout(() => document.getElementById('userMsg').focus(), 100);
+            }
+        }
+
+        // Add listener for 'Enter' key to send messages
+        document.getElementById('userMsg').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        function sendMessage() {
+            const input = document.getElementById('userMsg');
+            const msg = input.value.trim();
+            if (!msg) return;
+
+            const chatBox = document.getElementById('chatMessages');
+            
+            // 1. Display User Message
+            chatBox.innerHTML += `
+                <div class="text-end mb-3">
+                    <span class="bg-primary text-white p-2 px-3 rounded-3 d-inline-block shadow-sm" style="max-width: 85%; text-align: left;">${msg}</span>
+                </div>`;
+            input.value = '';
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            // 2. Add Loading Indicator
+            const loadingId = 'loading-' + Date.now();
+            chatBox.innerHTML += `
+                <div id="${loadingId}" class="text-start mb-3">
+                    <span class="bg-dark border border-secondary text-light p-2 px-3 rounded-3 d-inline-block small">
+                        <i class="fas fa-circle-notch fa-spin text-primary me-2"></i> Thinking...
+                    </span>
+                </div>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            // 3. Send to Server
+            fetch("{% url 'chat_with_ai' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}' 
+                },
+                body: JSON.stringify({ 'message': msg })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Remove Loading Indicator
+                const loader = document.getElementById(loadingId);
+                if(loader) loader.remove();
+                
+                const reply = data.reply || "I'm having trouble connecting right now.";
+                
+                // 4. Display AI Reply
+                chatBox.innerHTML += `
+                    <div class="text-start mb-3">
+                        <div class="bg-dark border border-secondary text-light p-3 rounded-3 d-inline-block shadow-sm" style="max-width: 90%;">
+                            <div class="d-flex align-items-center mb-1 text-primary small fw-bold">
+                                <i class="fas fa-robot me-2"></i> FuelPulse AI
+                            </div>
+                            <div>${reply.replace(/\n/g, '<br>')}</div>
+                        </div>
+                    </div>`;
+                chatBox.scrollTop = chatBox.scrollHeight;
+            })
+            .catch(error => {
+                const loader = document.getElementById(loadingId);
+                if(loader) loader.remove();
+                chatBox.innerHTML += `
+                    <div class="text-start mb-3">
+                        <span class="bg-danger text-white p-2 px-3 rounded-3 d-inline-block small">
+                            Error: Could not reach the AI server.
+                        </span>
+                    </div>`;
+                console.error('Chat Error:', error);
+            });
+        }
+    </script>
+    
+    <!-- BOOTSTRAP JS (LOADED ONCE AT END) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

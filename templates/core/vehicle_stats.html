@@ -1,0 +1,490 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<style>
+/* --- SASSY DASHBOARD THEME --- */
+:root {
+--bg-deep: #000000;
+--card-bg: #0a0a0a;
+--glass-border: rgba(255, 255, 255, 0.1);
+--accent-gradient: linear-gradient(135deg, #06b6d4 0%, #8b5cf6 100%);
+--text-glow: linear-gradient(90deg, #22d3ee, #c084fc);
+}
+
+body, .main-content {
+    background-color: var(--bg-deep) !important;
+    color: white;
+    font-family: &#39;Outfit&#39;, sans-serif;
+}
+
+/* --- CARDS --- */
+.sassy-card {
+    background: var(--card-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    position: relative;
+    overflow: hidden;
+    height: 100%;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.sassy-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(6, 182, 212, 0.15);
+    border-color: rgba(139, 92, 246, 0.3);
+}
+
+.sassy-card::before {
+    content: &#39;&#39;;
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 3px;
+    background: var(--accent-gradient);
+}
+
+/* --- TYPOGRAPHY --- */
+.gradient-text {
+    background: var(--text-glow);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 800;
+    display: inline-block;
+}
+
+.text-label {
+    color: #94a3b8;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+/* --- BADGES --- */
+.badge-glow-success { 
+    background: rgba(16, 185, 129, 0.15); 
+    color: #6ee7b7 !important;
+    border: 1px solid rgba(16, 185, 129, 0.3); 
+}
+.badge-glow-warning { 
+    background: rgba(245, 158, 11, 0.15); 
+    color: #fcd34d !important;
+    border: 1px solid rgba(245, 158, 11, 0.3); 
+}
+.badge-glow-danger { 
+    background: rgba(239, 68, 68, 0.15); 
+    color: #fca5a5 !important;
+    border: 1px solid rgba(239, 68, 68, 0.3); 
+}
+.badge-glow-info { 
+    background: rgba(6, 182, 212, 0.15); 
+    color: #67e8f9 !important;
+    border: 1px solid rgba(6, 182, 212, 0.3); 
+}
+
+/* --- PROGRESS BARS --- */
+.progress {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    height: 6px;
+    overflow: hidden;
+}
+.progress-bar.bg-gradient-success { background: linear-gradient(90deg, #10b981, #34d399); }
+.progress-bar.bg-gradient-warning { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+.progress-bar.bg-gradient-danger { background: linear-gradient(90deg, #ef4444, #f87171); }
+.progress-bar.bg-gradient-info { background: linear-gradient(90deg, #06b6d4, #22d3ee); }
+
+/* --- BUTTONS --- */
+.btn-sassy {
+    background: var(--accent-gradient);
+    border: none;
+    color: white;
+    font-weight: 700;
+    padding: 10px 25px;
+    border-radius: 12px;
+    transition: 0.3s;
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+}
+.btn-sassy:hover {
+    opacity: 0.95;
+    transform: translateY(-2px);
+    color: white;
+    box-shadow: 0 6px 20px rgba(6, 182, 212, 0.5);
+}
+
+.btn-sassy-outline {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.2);
+    color: #cbd5e1;
+    font-weight: 600;
+    padding: 8px 20px;
+    border-radius: 12px;
+    transition: 0.3s;
+}
+.btn-sassy-outline:hover {
+    border-color: white;
+    color: white;
+    background: rgba(255,255,255,0.05);
+}
+
+/* --- TABLE --- */
+.table-sassy { color: #e2e8f0; }
+.table-sassy thead th {
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    color: #94a3b8;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    padding-bottom: 1rem;
+}
+.table-sassy tbody td {
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    padding: 1rem 0.5rem;
+}
+
+/* --- MODAL INPUTS --- */
+.modal-content {
+    background-color: #000000;
+    border: 1px solid rgba(255,255,255,0.2);
+}
+.modal-header, .modal-footer { border-color: rgba(255,255,255,0.1); }
+.form-control, .form-select {
+    background-color: #000000 !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: #ffffff !important;
+    border-radius: 12px;
+    padding: 10px 15px;
+}
+.form-control:focus {
+    border-color: #8b5cf6 !important;
+    box-shadow: 0 0 10px rgba(139, 92, 246, 0.2) !important;
+}
+
+
+</style>
+
+<!-- HEADER SECTION -->
+
+<div class="row mb-5 align-items-end">
+<div class="col-md-8">
+<h1 class="gradient-text display-5 mb-1">{{ vehicle.make }} {{ vehicle.model_name }}</h1>
+<div class="d-flex align-items-center gap-3 text-muted">
+<span class="badge bg-white bg-opacity-10 border border-secondary text-light px-3 py-2 rounded-pill">{{ vehicle.license_plate }}</span>
+<span><i class="fas fa-gas-pump me-1"></i> {{ vehicle.fuel_type }}</span>
+<span><i class="fas fa-road me-1"></i> {{ vehicle.current_odometer }} km</span>
+</div>
+</div>
+<div class="col-md-4 text-md-end mt-3 mt-md-0">
+<a href="{% url 'dashboard' %}" class="btn-sassy-outline">
+<i class="fas fa-arrow-left me-2"></i> Back to Garage
+</a>
+</div>
+</div>
+
+<!-- KEY METRICS ROW -->
+
+<div class="row g-4 mb-5">
+<div class="col-md-4">
+<div class="sassy-card d-flex flex-column justify-content-center">
+<h6 class="text-label">Average Mileage</h6>
+<div>
+<h2 class="gradient-text mb-0">{{ avg_mileage }}</h2>
+<span class="text-muted ms-1">km/L</span>
+</div>
+</div>
+</div>
+<div class="col-md-4">
+<div class="sassy-card d-flex flex-column justify-content-center">
+<h6 class="text-label">Total Fuel Cost</h6>
+<div>
+<h2 class="gradient-text mb-0">₹ {{ total_fuel_cost }}</h2>
+</div>
+</div>
+</div>
+<div class="col-md-4">
+<div class="sassy-card d-flex flex-column justify-content-center">
+<h6 class="text-label">Fuel Consumed</h6>
+<div>
+<h2 class="gradient-text mb-0">{{ total_liters }}</h2>
+<span class="text-muted ms-1">Liters</span>
+</div>
+</div>
+</div>
+</div>
+
+<!-- MAINTENANCE SECTION -->
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+<h4 class="text-white fw-bold mb-0">
+<span style="background: rgba(6, 182, 212, 0.15); border-radius: 50%; width: 40px; height: 40px; display: inline-flex; align-items: center; justify-content: center; margin-right: 10px;">
+<i class="fas fa-robot text-info"></i>
+</span>
+Maintenance Forecast
+</h4>
+<button class="btn-sassy btn-sm" data-bs-toggle="modal" data-bs-target="#updateServiceModal">
+<i class="fas fa-plus me-2"></i> Update Service
+</button>
+</div>
+
+<div class="row g-4 mb-5">
+<div class="col-md-4">
+<div class="sassy-card">
+<div class="d-flex justify-content-between align-items-start mb-4">
+<div>
+<h6 class="text-white fw-bold mb-1"><i class="fas fa-oil-can text-warning me-2"></i> Oil Change</h6>
+<small class="text-muted">Target: {{ maint.oil.target_km }} km</small>
+</div>
+<span class="badge badge-glow-{% if maint.oil.status == 'Good' %}success{% elif maint.oil.status == 'Warning' %}warning{% else %}danger{% endif %}">
+{{ maint.oil.status }}
+</span>
+</div>
+<div class="mb-3">
+<div class="d-flex justify-content-between small text-muted mb-1">
+<span>Progress</span>
+<span>{{ maint.oil.remaining_km|default:"0" }} km left</span>
+</div>
+<div class="progress">
+<div class="progress-bar {% if maint.oil.status == 'Critical' %}bg-gradient-danger{% else %}bg-gradient-warning{% endif %}" style="width: 75%"></div>
+</div>
+</div>
+<div class="d-flex align-items-center justify-content-between pt-3 border-top border-secondary border-opacity-25">
+<small class="text-muted">Last Service:</small>
+<span class="text-white fw-bold">{{ maint.oil.date }}</span>
+</div>
+</div>
+</div>
+
+<div class="col-md-4">
+    <div class="sassy-card">
+        <div class="d-flex justify-content-between align-items-start mb-4">
+            <div>
+                <h6 class="text-white fw-bold mb-1"><i class="fas fa-compact-disc text-secondary me-2"></i> Tyre Change</h6>
+                <small class="text-muted">Target: {{ maint.tyre.target_km }} km</small>
+            </div>
+            <span class="badge badge-glow-{% if maint.tyre.status == 'Good' %}success{% else %}warning{% endif %}">
+                {{ maint.tyre.status }}
+            </span>
+        </div>
+        <div class="mb-3">
+            <div class="d-flex justify-content-between small text-muted mb-1">
+                <span>Wear Level</span>
+                <span>{{ maint.tyre.remaining_km|default:"-" }} km est.</span>
+            </div>
+            <div class="progress">
+                <div class="progress-bar bg-gradient-info" style="width: 40%"></div>
+            </div>
+        </div>
+        <div class="d-flex align-items-center justify-content-between pt-3 border-top border-secondary border-opacity-25">
+            <small class="text-muted">Last Service:</small>
+            <span class="text-white fw-bold">{{ maint.tyre.date }}</span>
+        </div>
+    </div>
+</div>
+
+<div class="col-md-4">
+    <div class="sassy-card">
+        <div class="d-flex justify-content-between align-items-start mb-4">
+            <div>
+                <h6 class="text-white fw-bold mb-1"><i class="fas fa-tools text-primary me-2"></i> General Service</h6>
+                <small class="text-muted">Target: {{ maint.general.target_km }} km</small>
+            </div>
+            <span class="badge badge-glow-info">Routine</span>
+        </div>
+        <div class="mb-3">
+            <div class="d-flex justify-content-between small text-muted mb-1">
+                <span>Schedule</span>
+                <span>Periodic</span>
+            </div>
+            <div class="progress">
+                <div class="progress-bar bg-gradient-success" style="width: 20%"></div>
+            </div>
+        </div>
+        <div class="d-flex align-items-center justify-content-between pt-3 border-top border-secondary border-opacity-25">
+            <small class="text-muted">Last Service:</small>
+            <span class="text-white fw-bold">{{ maint.general.date }}</span>
+        </div>
+    </div>
+</div>
+
+
+</div>
+
+<!-- BOTTOM GRID -->
+
+<div class="row g-4">
+<!-- DOCUMENTS TABLE -->
+<div class="col-lg-8">
+<div class="sassy-card h-100">
+<div class="d-flex justify-content-between align-items-center mb-4">
+<h5 class="text-white fw-bold mb-0"><i class="fas fa-file-contract me-2 text-primary"></i> Document Status</h5>
+<button class="btn-sassy btn-sm" data-bs-toggle="modal" data-bs-target="#updateDocsModal">
+<i class="fas fa-calendar-check me-2"></i> Update Documents
+</button>
+</div>
+<div class="table-responsive">
+<table class="table table-sassy align-middle mb-0">
+<thead>
+<tr>
+<th>Document</th>
+<th>Expiry Date</th>
+<th class="text-end">Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<div class="d-flex align-items-center">
+<div class="bg-dark rounded p-2 me-3"><i class="fas fa-shield-alt text-white"></i></div>
+<span class="fw-bold">Insurance</span>
+</div>
+</td>
+<td>{{ vehicle.insurance_expiry|date:"d M Y"|default:"Not Set" }}</td>
+<td class="text-end">
+{% if vehicle.insurance_expiry and vehicle.insurance_expiry < today %}
+<span class="badge badge-glow-danger">Expired</span>
+{% else %}
+<span class="badge badge-glow-success">Valid</span>
+{% endif %}
+</td>
+</tr>
+<tr>
+<td>
+<div class="d-flex align-items-center">
+<div class="bg-dark rounded p-2 me-3"><i class="fas fa-smog text-white"></i></div>
+<span class="fw-bold">PUC (Pollution)</span>
+</div>
+</td>
+<td>{{ vehicle.pollution_expiry|date:"d M Y"|default:"Not Set" }}</td>
+<td class="text-end">
+{% if vehicle.pollution_expiry and vehicle.pollution_expiry < today %}
+<span class="badge badge-glow-danger">Expired</span>
+{% else %}
+<span class="badge badge-glow-success">Valid</span>
+{% endif %}
+</td>
+</tr>
+<tr>
+<td>
+<div class="d-flex align-items-center">
+<div class="bg-dark rounded p-2 me-3"><i class="fas fa-certificate text-white"></i></div>
+<span class="fw-bold">Fitness Cert</span>
+</div>
+</td>
+<td>{{ vehicle.fitness_expiry|date:"d M Y"|default:"Not Set" }}</td>
+<td class="text-end">
+{% if vehicle.fitness_expiry and vehicle.fitness_expiry < today %}
+<span class="badge badge-glow-danger">Expired</span>
+{% else %}
+<span class="badge badge-glow-success">Valid</span>
+{% endif %}
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="col-lg-4">
+    <div class="sassy-card h-100">
+        <h5 class="text-white fw-bold mb-4">External Services</h5>
+        <div class="p-3 rounded-3 mb-4" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-traffic-light fs-1 me-3 text-warning"></i>
+                <div>
+                    <div class="fw-bold text-white">Pending Challans?</div>
+                    <div class="small text-muted">Check official government records immediately.</div>
+                </div>
+            </div>
+        </div>
+        <a href="{{ challan_link }}" target="_blank" class="btn-sassy w-100 py-3 d-block text-center text-decoration-none">
+            <i class="fas fa-external-link-alt me-2"></i> Check e-Challan
+        </a>
+        <div class="text-muted small text-center mt-3 opacity-75">
+            Redirects to Parivahan Sewa (Govt of India).
+        </div>
+    </div>
+</div>
+
+
+</div>
+
+<!-- MAINTENANCE MODAL -->
+
+<div class="modal fade" id="updateServiceModal" tabindex="-1" aria-hidden="true">
+<div class="modal-dialog modal-dialog-centered">
+<div class="modal-content text-white">
+<div class="modal-header">
+<h5 class="modal-title fw-bold">Update Maintenance</h5>
+<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+</div>
+<form method="post" action="{% url 'update_maintenance' vehicle.id %}">
+{% csrf_token %}
+<div class="modal-body p-4">
+<div class="mb-3">
+<label class="form-label text-muted small text-uppercase fw-bold">Service Type</label>
+<select name="service_type" class="form-select" required>
+<option value="oil">Oil Change</option>
+<option value="tyre">Tyre Change</option>
+<option value="general">General Service</option>
+</select>
+</div>
+<div class="mb-3">
+<label class="form-label text-muted small text-uppercase fw-bold">Date</label>
+<input type="date" name="service_date" class="form-control" required value="{{ today|date:'Y-m-d' }}">
+</div>
+<div class="mb-3">
+<label class="form-label text-muted small text-uppercase fw-bold">Odometer</label>
+<input type="number" name="service_km" class="form-control" required value="{{ vehicle.current_odometer }}" min="0">
+</div>
+</div>
+<div class="modal-footer">
+<button type="button" class="btn btn-sassy-outline" data-bs-dismiss="modal">Cancel</button>
+<button type="submit" class="btn btn-sassy">Update Record</button>
+</div>
+</form>
+</div>
+</div>
+</div>
+
+<!-- UPDATE DOCUMENTS MODAL -->
+
+<div class="modal fade" id="updateDocsModal" tabindex="-1" aria-hidden="true">
+<div class="modal-dialog modal-dialog-centered">
+<div class="modal-content text-white">
+<div class="modal-header">
+<h5 class="modal-title fw-bold">Update Renewal Dates</h5>
+<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+</div>
+<form method="post" action="{% url 'update_vehicle_docs' vehicle.id %}">
+{% csrf_token %}
+<div class="modal-body p-4">
+<div class="mb-3">
+<label class="form-label text-muted small text-uppercase fw-bold">Insurance Expiry</label>
+<input type="date" name="insurance_expiry" class="form-control" value="{{ vehicle.insurance_expiry|date:'Y-m-d' }}">
+</div>
+<div class="mb-3">
+<label class="form-label text-muted small text-uppercase fw-bold">Pollution (PUC) Expiry</label>
+<input type="date" name="pollution_expiry" class="form-control" value="{{ vehicle.pollution_expiry|date:'Y-m-d' }}">
+</div>
+<div class="mb-3">
+<label class="form-label text-muted small text-uppercase fw-bold">Fitness Cert Expiry</label>
+<input type="date" name="fitness_expiry" class="form-control" value="{{ vehicle.fitness_expiry|date:'Y-m-d' }}">
+</div>
+
+                <input type="hidden" name="ownership_type" value="{{ vehicle.ownership_type }}">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-sassy-outline" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-sassy">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+</div>
+
+{% endblock %}
